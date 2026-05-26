@@ -1,32 +1,31 @@
 <section class="hero" id="hero">
     <div class="hero-content">
-        <p class="tag">Tecnologia que conecta tus ideas</p>
+        <p class="tag">Asesoria real + tecnologia que simplifica tu dia</p>
         <h1>
-            Kincaya, tu tienda de tecnologia
-            <span>moderna, segura y confiable.</span>
+            Equipos confiables para
+            <span>hogar, oficina y negocio.</span>
         </h1>
         <p class="hero-copy">
-            Equipos para hogar, oficina y entretenimiento: camaras, audio, wearables,
-            computo y mas. Compra facil y confirma tu pedido directo por WhatsApp.
+            Compra en minutos, recibe recomendacion personalizada y confirma pedido por WhatsApp con seguimiento real.
         </p>
 
         <div class="hero-actions">
-            <a class="btn-primary" href="#products">Ver productos</a>
-            <a class="btn-outline" href="#products">Explorar catalogo</a>
+            <a class="btn-primary" href="#products">Comprar ahora</a>
+            <a class="btn-outline" href="#offer">Ver oferta semanal</a>
         </div>
 
         <div class="hero-kpis" aria-label="Beneficios principales">
             <article>
-                <strong>+500</strong>
-                <span>clientes atendidos</span>
+                <strong>4.9/5</strong>
+                <span>valoracion promedio</span>
             </article>
             <article>
-                <strong>24h</strong>
+                <strong>&lt; 24h</strong>
                 <span>respuesta por WhatsApp</span>
             </article>
             <article>
-                <strong>100%</strong>
-                <span>catalogo curado</span>
+                <strong>Garantia</strong>
+                <span>soporte post compra</span>
             </article>
         </div>
     </div>
@@ -39,27 +38,71 @@
             <strong>24-48 horas</strong>
         </div>
         <div class="floating-card second">
-            <p>Soporte tecnico</p>
-            <strong>Personalizado</strong>
+            <p>Asesoria experta</p>
+            <strong>1 a 1 por chat</strong>
         </div>
     </div>
 </section>
 
+<section class="trust-strip" aria-label="Prueba social">
+    <article>
+        <strong>+850</strong>
+        <span>pedidos completados</span>
+    </article>
+    <article>
+        <strong>98%</strong>
+        <span>satisfaccion de clientes</span>
+    </article>
+    <article>
+        <strong>100%</strong>
+        <span>acompanamiento por WhatsApp</span>
+    </article>
+    <article>
+        <strong>7 dias</strong>
+        <span>garantia de cambio</span>
+    </article>
+</section>
+
+<section class="collections" aria-label="Colecciones destacadas">
+    <div class="section-head">
+        <h2>Compra por necesidad</h2>
+        <p>Elige una coleccion y te mostramos productos listos para resolver ese escenario.</p>
+    </div>
+    <div class="collection-grid">
+        @for (collection of collections; track collection.title) {
+        <article class="collection-card">
+            <img [src]="collection.image" [alt]="collection.title" loading="lazy" (error)="applyImageFallback($event)" />
+            <div>
+                <h3>{{ collection.title }}</h3>
+                <p>{{ collection.description }}</p>
+                <button type="button" (click)="openCollection(collection.category)">Explorar</button>
+            </div>
+        </article>
+        }
+    </div>
+</section>
+
 <section class="featured">
-    <h2>Destacados Kincaya</h2>
+    <div class="section-head">
+        <h2>Destacados Kincaya</h2>
+        <p>Productos con mejor relacion entre rendimiento, confianza y demanda.</p>
+    </div>
     <div class="featured-grid">
         @for (product of featuredProducts; track product.id) {
         <article class="featured-card">
+            <span class="badge">{{ getBadge(product) }}</span>
             <img [src]="product.images[0]" [alt]="product.name" loading="lazy" (click)="openProduct(product)"
                 (error)="applyImageFallback($event)" />
             <div>
                 <h3>{{ product.name }}</h3>
                 <p>{{ product.description }}</p>
+                <div class="featured-price">
+                    <small>{{ getReferencePrice(product.price) }}</small>
+                    <strong>{{ formatPrice(product.price) }}</strong>
+                </div>
                 <div class="featured-actions">
                     <button type="button" (click)="openProduct(product)">Ver fotos</button>
-                    <button type="button" (click)="addToCart(product)">
-                        Agregar {{ formatPrice(product.price) }}
-                    </button>
+                    <button type="button" (click)="addToCart(product)">Agregar</button>
                 </div>
             </div>
         </article>
@@ -67,25 +110,52 @@
     </div>
 </section>
 
+<section class="weekly-offer" id="offer" aria-label="Oferta semanal">
+    <div class="offer-copy">
+        <p class="offer-tag">Oferta semanal</p>
+        <h2>Descuento especial del 15%</h2>
+        <p>Solo por esta semana en uno de nuestros productos favoritos para clientes frecuentes.</p>
+        <div class="offer-prices">
+            <small>{{ formatPrice(offerProduct.price) }}</small>
+            <strong>{{ getOfferPrice(offerProduct.price) }}</strong>
+        </div>
+        <div class="offer-actions">
+            <button type="button" class="btn-primary" (click)="openProduct(offerProduct)">Ver oferta</button>
+            <button type="button" class="btn-outline" (click)="addToCart(offerProduct)">Agregar al carrito</button>
+        </div>
+    </div>
+    <article class="offer-card">
+        <img [src]="offerProduct.images[0]" [alt]="offerProduct.name" loading="lazy" (click)="openProduct(offerProduct)"
+            (error)="applyImageFallback($event)" />
+        <h3>{{ offerProduct.name }}</h3>
+        <p>{{ offerProduct.description }}</p>
+    </article>
+</section>
+
 <section class="catalog" id="products">
     <div class="catalog-head">
         <h2>Catalogo de productos</h2>
-        <p>Explora por categoria y agrega al carrito en un clic.</p>
+        <p>Busca, filtra y compara para comprar con mayor claridad.</p>
 
         <div class="search-row">
             <label class="search-box" for="productSearch">
-                <span>Buscar</span>
-                <input id="productSearch" type="search" placeholder="Ejemplo: camara, audio, smartwatch"
-                    [value]="searchTerm()" (input)="updateSearch($any($event.target).value)" />
+                <span>Buscar producto</span>
+                <input id="productSearch" list="productSuggestions" type="search"
+                    placeholder="Ejemplo: camara, audio, smartwatch" [value]="searchTerm()"
+                    (input)="updateSearch($any($event.target).value)" />
+                <datalist id="productSuggestions">
+                    @for (item of quickSearchSuggestions(); track item) {
+                    <option [value]="item"></option>
+                    }
+                </datalist>
             </label>
             @if (searchTerm()) {
             <button type="button" class="clear-search" (click)="clearSearch()">Limpiar</button>
             }
         </div>
-        <p class="result-count">{{ filteredProducts().length }} resultados</p>
     </div>
 
-    <div class="filters" role="tablist" aria-label="Filtrar productos">
+    <div class="filters" role="tablist" aria-label="Filtrar productos por categoria">
         @for (category of categories; track category) {
         <button type="button" [class.active]="activeCategory() === category" (click)="selectCategory(category)">
             {{ category }}
@@ -93,18 +163,59 @@
         }
     </div>
 
+    <div class="advanced-filters" aria-label="Filtros avanzados">
+        <div class="price-bands">
+            @for (band of priceBands; track band.key) {
+            <button type="button" [class.active]="activePriceBand() === band.key" (click)="setPriceBand(band.key)">
+                {{ band.label }}
+            </button>
+            }
+        </div>
+
+        <label class="featured-toggle">
+            <input type="checkbox" [checked]="onlyFeatured()" (change)="setFeaturedOnly($any($event.target).checked)" />
+            Solo destacados
+        </label>
+
+        <label class="sort-select" for="sortMode">
+            Ordenar
+            <select id="sortMode" [value]="sortMode()" (change)="setSortMode($any($event.target).value)">
+                @for (option of sortOptions; track option.key) {
+                <option [value]="option.key">{{ option.label }}</option>
+                }
+            </select>
+        </label>
+
+        @if (hasAdvancedFilters()) {
+        <button type="button" class="clear-search" (click)="resetAdvancedFilters()">Reset filtros</button>
+        }
+    </div>
+
+    <p class="result-count">{{ filteredProducts().length }} resultados</p>
+
     <div class="product-grid">
         @for (product of filteredProducts(); track product.id) {
         <article class="product-card">
-            <img [src]="product.images[0]" [alt]="product.name" loading="lazy" (click)="openProduct(product)"
-                (error)="applyImageFallback($event)" />
+            @if (getBadge(product)) {
+            <span class="badge">{{ getBadge(product) }}</span>
+            }
+            <div class="image-stack" (click)="openProduct(product)">
+                <img class="img-main" [src]="product.images[0]" [alt]="product.name" loading="lazy"
+                    (error)="applyImageFallback($event)" />
+                <img class="img-hover" [src]="product.images[1] || product.images[0]" [alt]="product.name" loading="lazy"
+                    (error)="applyImageFallback($event)" />
+            </div>
+
             <div class="card-content">
                 <p class="category">{{ product.category }}</p>
                 <h3 (click)="openProduct(product)">{{ product.name }}</h3>
                 <p class="description">{{ product.description }}</p>
 
                 <div class="price-row">
-                    <strong>{{ formatPrice(product.price) }}</strong>
+                    <div class="price-col">
+                        <small>{{ getReferencePrice(product.price) }}</small>
+                        <strong>{{ formatPrice(product.price) }}</strong>
+                    </div>
                     <div class="card-buttons">
                         <button type="button" class="ghost" (click)="openProduct(product)">Ver</button>
                         <button type="button" class="add-btn" [class.added]="recentlyAddedId() === product.id"
@@ -121,8 +232,59 @@
     @if (filteredProducts().length === 0) {
     <article class="empty-results" aria-live="polite">
         <h3>Sin resultados</h3>
-        <p>Prueba con otra categoria o cambia el texto de busqueda para ver mas productos.</p>
-        <button type="button" class="btn-outline" (click)="selectCategory('Todos'); clearSearch()">Ver todo el catalogo</button>
+        <p>Prueba con otra categoria, rango de precio o cambia tu busqueda para encontrar mas opciones.</p>
+        <button type="button" class="btn-outline" (click)="selectCategory('Todos'); clearSearch(); resetAdvancedFilters()">Ver
+            todo el catalogo</button>
     </article>
     }
+</section>
+
+<section class="testimonials" aria-label="Opiniones de clientes">
+    <div class="section-head">
+        <h2>Lo que dicen nuestros clientes</h2>
+        <p>Experiencias reales de compra con asesoria personalizada.</p>
+    </div>
+    <div class="testimonial-grid">
+        @for (item of testimonials; track item.name) {
+        <article>
+            <p class="score">{{ item.score }} / 5</p>
+            <p class="quote">"{{ item.quote }}"</p>
+            <strong>{{ item.name }}</strong>
+            <span>{{ item.role }}</span>
+        </article>
+        }
+    </div>
+</section>
+
+<section class="metrics" aria-label="Metricas de conversion">
+    <div class="section-head">
+        <h2>Panel de conversion</h2>
+        <p>Datos de interaccion capturados en la app para optimizar experiencia y ventas.</p>
+    </div>
+    <div class="metrics-grid">
+        <article>
+            <p>Visitas</p>
+            <strong>{{ metrics().visits }}</strong>
+        </article>
+        <article>
+            <p>Vistas de producto</p>
+            <strong>{{ metrics().productViews }}</strong>
+        </article>
+        <article>
+            <p>Agregados a carrito</p>
+            <strong>{{ metrics().addsToCart }}</strong>
+        </article>
+        <article>
+            <p>Intencion de checkout</p>
+            <strong>{{ metrics().checkoutIntents }}</strong>
+        </article>
+        <article>
+            <p>Tasa ver a carrito</p>
+            <strong>{{ addToViewRate().toFixed(1) }}%</strong>
+        </article>
+        <article>
+            <p>Tasa carrito a checkout</p>
+            <strong>{{ checkoutRate().toFixed(1) }}%</strong>
+        </article>
+    </div>
 </section>

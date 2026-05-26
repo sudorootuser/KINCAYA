@@ -1,104 +1,147 @@
 <div class="site-shell">
-    <header class="topbar">
-        <a class="brand" routerLink="/">
-            <img class="brand-name-logo" [src]="logoWordmarkPath" [alt]="storeName" (error)="applyImageFallback($event)" />
-            <span class="brand-name">{{ storeName }}</span>
-        </a>
+  <header class="topbar">
+    <a class="brand" routerLink="/">
+      <img class="brand-name-logo" [src]="logoWordmarkPath" [alt]="storeName" (error)="applyImageFallback($event)" />
+      <span class="brand-name">{{ storeName }}</span>
+    </a>
 
-        <nav class="menu" aria-label="Navegacion principal">
-            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-                Productos
-            </a>
-            <a routerLink="/nosotros" routerLinkActive="active">Nosotros</a>
-            <button type="button" (click)="openCart()">Carrito ({{ cartCount() }})</button>
-        </nav>
+    <nav class="menu" aria-label="Navegacion principal">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        Productos
+      </a>
+      <a routerLink="/nosotros" routerLinkActive="active">Nosotros</a>
+      <button type="button" (click)="openCart()">Carrito ({{ cartCount() }})</button>
+    </nav>
+  </header>
+
+  <main>
+    <router-outlet />
+  </main>
+
+  <nav class="mobile-nav" aria-label="Navegacion movil">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
+    <a href="/#products">Catalogo</a>
+    <a routerLink="/nosotros" routerLinkActive="active">Nosotros</a>
+    <button type="button" (click)="openCart()">Carrito {{ cartCount() }}</button>
+  </nav>
+
+  <button class="cart-fab" type="button" [class.pulse]="cartPulse()" (click)="openCart()">
+    Carrito {{ cartCount() }}
+  </button>
+
+  <aside class="cart-panel" [class.open]="cartOpen()" aria-label="Carrito de compras">
+    <header>
+      <h3>Tu carrito</h3>
+      <button type="button" (click)="closeCart()">Cerrar</button>
     </header>
 
-    <main>
-        <router-outlet />
-    </main>
+    <div class="cart-items">
+      @if (cartItems().length === 0) {
+      <p class="empty">Tu carrito esta vacio.</p>
+      } @else {
+      @for (item of cartItems(); track item.product.id) {
+      <article class="cart-item" (click)="openProductFromCart(item)">
+        <div class="cart-item-main">
+          <img [src]="getCartItemImage(item)" [alt]="item.product.name" loading="lazy"
+            (error)="applyImageFallback($event)" />
+          <div>
+            <h4>{{ item.product.name }}</h4>
+            <small>{{ formatPrice(item.product.price) }}</small>
+          </div>
+        </div>
+        <div class="qty" (click)="$event.stopPropagation()">
+          <button type="button" (click)="decrease(item)">-</button>
+          <span>{{ item.quantity }}</span>
+          <button type="button" (click)="increase(item)">+</button>
+        </div>
+      </article>
+      }
+      }
+    </div>
 
-    <button class="cart-fab" type="button" [class.pulse]="cartPulse()" (click)="openCart()">
-        Carrito {{ cartCount() }}
-    </button>
+    <footer>
+      <div class="totals">
+        <p>Subtotal</p>
+        <strong>{{ formatPrice(cartTotal()) }}</strong>
+      </div>
+      <div class="totals">
+        <p>Envio</p>
+        <strong>{{ shippingCost() === 0 ? 'Gratis' : formatPrice(shippingCost()) }}</strong>
+      </div>
+      <div class="totals total-main">
+        <p>Total final</p>
+        <strong>{{ formatPrice(grandTotal()) }}</strong>
+      </div>
 
-    <aside class="cart-panel" [class.open]="cartOpen()" aria-label="Carrito de compras">
-        <header>
-            <h3>Tu carrito</h3>
-            <button type="button" (click)="closeCart()">Cerrar</button>
-        </header>
+      <div class="shipping-block">
+        <p>{{ freeShippingHint() }}</p>
+        <div class="shipping-progress" role="progressbar" [attr.aria-valuenow]="freeShippingProgress()" aria-valuemin="0"
+          aria-valuemax="100">
+          <span [style.width.%]="freeShippingProgress()"></span>
+        </div>
+        <small>Entrega estimada: {{ shippingEstimate() }}</small>
+      </div>
 
-        <div class="cart-items">
-            @if (cartItems().length === 0) {
-            <p class="empty">Tu carrito esta vacio.</p>
-            } @else {
-            @for (item of cartItems(); track item.product.id) {
-            <article class="cart-item" (click)="openProductFromCart(item)">
-                <div class="cart-item-main">
-                    <img [src]="getCartItemImage(item)" [alt]="item.product.name" loading="lazy"
-                        (error)="applyImageFallback($event)" />
-                    <div>
-                        <h4>{{ item.product.name }}</h4>
-                        <small>{{ formatPrice(item.product.price) }}</small>
-                    </div>
-                </div>
-                <div class="qty" (click)="$event.stopPropagation()">
-                    <button type="button" (click)="decrease(item)">-</button>
-                    <span>{{ item.quantity }}</span>
-                    <button type="button" (click)="increase(item)">+</button>
-                </div>
-            </article>
+      @if (suggestedProducts().length > 0) {
+      <div class="cart-suggestions" aria-label="Recomendaciones de compra">
+        <p class="suggest-title">Tambien te puede interesar</p>
+        @for (product of suggestedProducts(); track product.id) {
+        <article>
+          <img [src]="product.images[0]" [alt]="product.name" loading="lazy" (error)="applyImageFallback($event)" />
+          <div>
+            <h4>{{ product.name }}</h4>
+            <small>{{ formatPrice(product.price) }}</small>
+          </div>
+          <button type="button" (click)="addSuggestedProduct(product)">+</button>
+        </article>
+        }
+      </div>
+      }
+
+      <button class="btn-primary" type="button" [disabled]="cartItems().length === 0" (click)="sendToWhatsApp()">
+        Confirmar pedido por WhatsApp
+      </button>
+
+      <small class="checkout-note">Atencion personalizada en menos de 24 horas.</small>
+
+      <button class="btn-outline" type="button" [disabled]="cartItems().length === 0" (click)="clearCart()">
+        Vaciar carrito
+      </button>
+    </footer>
+  </aside>
+
+  <div class="cart-overlay" [class.open]="cartOpen()" (click)="closeCart()"></div>
+
+  @if (viewerProduct(); as product) {
+  <div class="modal-overlay" (click)="closeProductModal()">
+    <section class="modal" (click)="$event.stopPropagation()">
+      <button class="close-modal" type="button" (click)="closeProductModal()">Cerrar</button>
+
+      <div class="modal-grid">
+        <div class="modal-gallery">
+          <img [src]="viewerImage()" [alt]="product.name" (error)="applyImageFallback($event)" />
+          @if (getProductImages(product).length > 1) {
+          <button class="nav-image prev" type="button" (click)="prevModalImage()">&#10094;</button>
+          <button class="nav-image next" type="button" (click)="nextModalImage()">&#10095;</button>
+          }
+
+          <div class="thumbs">
+            @for (image of getProductImages(product); track image; let i = $index) {
+            <button type="button" [class.active]="viewerImageIndex() === i" (click)="setModalImage(i)">
+              <img [src]="image" [alt]="product.name + ' foto ' + (i + 1)" (error)="applyImageFallback($event)" />
+            </button>
             }
-            }
+          </div>
         </div>
 
-        <footer>
-            <p>Total</p>
-            <strong>{{ formatPrice(cartTotal()) }}</strong>
-
-            <button class="btn-primary" type="button" [disabled]="cartItems().length === 0" (click)="sendToWhatsApp()">
-                Enviar pedido por WhatsApp
-            </button>
-
-            <button class="btn-outline" type="button" [disabled]="cartItems().length === 0" (click)="clearCart()">
-                Vaciar carrito
-            </button>
-        </footer>
-    </aside>
-
-    <div class="cart-overlay" [class.open]="cartOpen()" (click)="closeCart()"></div>
-
-    @if (viewerProduct(); as product) {
-    <div class="modal-overlay" (click)="closeProductModal()">
-        <section class="modal" (click)="$event.stopPropagation()">
-            <button class="close-modal" type="button" (click)="closeProductModal()">Cerrar</button>
-
-            <div class="modal-grid">
-                <div class="modal-gallery">
-                    <img [src]="viewerImage()" [alt]="product.name" (error)="applyImageFallback($event)" />
-                    @if (getProductImages(product).length > 1) {
-                    <button class="nav-image prev" type="button" (click)="prevModalImage()">&#10094;</button>
-                    <button class="nav-image next" type="button" (click)="nextModalImage()">&#10095;</button>
-                    }
-
-                    <div class="thumbs">
-                        @for (image of getProductImages(product); track image; let i = $index) {
-                        <button type="button" [class.active]="viewerImageIndex() === i" (click)="setModalImage(i)">
-                            <img [src]="image" [alt]="product.name + ' foto ' + (i + 1)"
-                                (error)="applyImageFallback($event)" />
-                        </button>
-                        }
-                    </div>
-                </div>
-
-                <div class="modal-info">
-                    <p class="category">{{ product.category }}</p>
-                    <h3>{{ product.name }}</h3>
-                    <p>{{ product.description }}</p>
-                    <strong>{{ formatPrice(product.price) }}</strong>
-                </div>
-            </div>
-        </section>
-    </div>
-    }
+        <div class="modal-info">
+          <p class="category">{{ product.category }}</p>
+          <h3>{{ product.name }}</h3>
+          <p>{{ product.description }}</p>
+          <strong>{{ formatPrice(product.price) }}</strong>
+        </div>
+      </div>
+    </section>
+  </div>
+  }
 </div>

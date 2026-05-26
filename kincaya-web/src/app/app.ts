@@ -1,10 +1,11 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { PRODUCTS } from './data/products.data';
-import { CartItem } from './models/product.model';
+import { CartItem, Product } from './models/product.model';
 import { CartService } from './services/cart.service';
 import { ProductViewerService } from './services/product-viewer.service';
+import { UxMetricsService } from './services/ux-metrics.service';
 
 @Component({
   selector: 'app-root',
@@ -23,6 +24,7 @@ export class App {
 
   private readonly cartService = inject(CartService);
   private readonly viewer = inject(ProductViewerService);
+  private readonly metricsService = inject(UxMetricsService);
 
   protected readonly cartItems = this.cartService.items;
   protected readonly cartCount = this.cartService.totalItems;
@@ -30,6 +32,16 @@ export class App {
   protected readonly viewerProduct = this.viewer.selectedProduct;
   protected readonly viewerImage = this.viewer.currentImage;
   protected readonly viewerImageIndex = this.viewer.currentImageIndex;
+  protected readonly suggestedProducts = computed(() => {
+    const inCart = new Set(this.cartItems().map((item) => item.product.id));
+    return PRODUCTS.filter((product) => !inCart.has(product.id)).slice(0, 3);
+  });
+  protected readonly shippingCost = computed(() => (this.cartTotal() >= 150 ? 0 : 4.99));
+  protected readonly grandTotal = computed(() => this.cartTotal() + this.shippingCost());
+  protected readonly freeShippingProgress = computed(() => {
+    const total = this.cartTotal();
+    return Math.min(100, (total / 150) * 100);
+  });
 
   constructor() {
     effect(() => {
@@ -81,7 +93,25 @@ export class App {
     ].join('\n');
 
     const url = `https://wa.me/${this.phoneNumber}?text=${encodeURIComponent(message)}`;
+    this.metricsService.trackCheckoutIntent();
     window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
+  protected addSuggestedProduct(product: Product): void {
+    this.cartService.add(product);
+  }
+
+  protected shippingEstimate(): string {
+    return this.cartTotal() >= 120 ? '24-48 horas' : '48-72 horas';
+  }
+
+  protected freeShippingHint(): string {
+    const total = this.cartTotal();
+    if (total >= 150) {
+      return 'Envio gratis activado';
+    }
+
+    return `Te faltan ${this.formatPrice(150 - total)} para envio gratis`;
   }
 
   protected openProductFromCart(item: CartItem): void {
