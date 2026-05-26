@@ -14,6 +14,7 @@ import { HomeContentService } from '../../services/home-content.service';
 import { ProductCatalogService } from '../../services/product-catalog.service';
 import { ProductViewerService } from '../../services/product-viewer.service';
 import { TestimonialService } from '../../services/testimonial.service';
+import { LeadService } from '../../services/lead.service';
 import { UxMetricsService } from '../../services/ux-metrics.service';
 
 type PriceBand = 'all' | 'under60' | 'from60to120' | 'over120';
@@ -67,6 +68,7 @@ export class HomeComponent implements OnDestroy {
   private readonly cartService = inject(CartService);
   private readonly viewer = inject(ProductViewerService);
   private readonly metricsService = inject(UxMetricsService);
+  private readonly leadService = inject(LeadService);
   private readonly catalogService = inject(ProductCatalogService);
   private readonly homeContentService = inject(HomeContentService);
   private readonly testimonialService = inject(TestimonialService);
@@ -499,6 +501,7 @@ export class HomeComponent implements OnDestroy {
 
   protected openProduct(product: Product): void {
     this.metricsService.trackProductView();
+    this.leadService.trackProductConsultation(product);
     this.viewer.open(product);
   }
 
