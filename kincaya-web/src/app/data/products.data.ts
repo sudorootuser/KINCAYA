@@ -1,0 +1,102 @@
+import { Product } from '../models/product.model';
+
+export const PRODUCTS: Product[] = [
+  {
+    id: 1,
+    name: 'Camara Smart Vision X2',
+    category: 'Camaras',
+    price: 179.99,
+    images: [
+      'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1504274066651-8d31a536b11a?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?auto=format&fit=crop&w=900&q=80',
+    ],
+    description: 'Camara IP 2K con vision nocturna, audio bidireccional y app movil.',
+    featured: true,
+  },
+  {
+    id: 2,
+    name: 'Kit Seguridad Home 360',
+    category: 'Seguridad',
+    price: 249.5,
+    images: [
+      'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1557597774-9d273605dfa9?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=900&q=80',
+    ],
+    description: 'Incluye 2 camaras, sensor de puerta y control remoto desde el telefono.',
+  },
+  {
+    id: 3,
+    name: 'Audifonos Pulse ANC',
+    category: 'Audio',
+    price: 129,
+    images: [
+      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1484704849700-f032a568e944?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1524678606370-a47ad25cb82a?auto=format&fit=crop&w=900&q=80',
+    ],
+    description: 'Cancelacion activa de ruido y bateria de larga duracion para todo el dia.',
+  },
+  {
+    id: 4,
+    name: 'Mouse Gamer RGB Pro',
+    category: 'Computo',
+    price: 49.99,
+    images: [
+      'https://images.unsplash.com/photo-1527814050087-3793815479db?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1613141412501-9012977f1969?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1629429407756-01cd3d7cfb38?auto=format&fit=crop&w=900&q=80',
+    ],
+    description: 'Sensor de precision, 6 botones programables y acabado ergonomico.',
+  },
+  {
+    id: 5,
+    name: 'Teclado Mecanico AirType',
+    category: 'Computo',
+    price: 89,
+    images: [
+      'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?auto=format&fit=crop&w=900&q=80',
+    ],
+    description: 'Switches tactiles, conexion USB-C y formato compacto para escritorio.',
+  },
+  {
+    id: 6,
+    name: 'Smartwatch Track One',
+    category: 'Wearables',
+    price: 109,
+    images: [
+      'https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1510017098667-27dfc5d9d6c5?auto=format&fit=crop&w=900&q=80',
+    ],
+    description: 'Monitoreo de salud, notificaciones y resistencia al agua IP68.',
+    featured: true,
+  },
+  {
+    id: 7,
+    name: 'Luz LED WiFi Strip',
+    category: 'Hogar Inteligente',
+    price: 35.5,
+    images: [
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1484704849700-f032a568e944?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=900&q=80',
+    ],
+    description: 'Control por voz y escenas personalizadas para sala, cuarto u oficina.',
+  },
+  {
+    id: 8,
+    name: 'Power Bank Turbo 20000',
+    category: 'Accesorios',
+    price: 59.9,
+    images: [
+      'https://images.unsplash.com/photo-1587033411391-5d9e51cce126?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1593642532842-98d0fd5ebc1a?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1546054454-aa26e2b734c7?auto=format&fit=crop&w=900&q=80',
+    ],
+    description: 'Carga rapida con doble puerto USB-C y display de nivel de energia.',
+  },
+];

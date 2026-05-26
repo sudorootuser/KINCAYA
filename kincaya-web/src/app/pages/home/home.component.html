@@ -1,0 +1,90 @@
+<section class="hero" id="hero">
+    <div class="hero-content">
+        <p class="tag">Tecnologia que conecta tus ideas</p>
+        <h1>
+            Kincaya, tu tienda de tecnologia
+            <span>moderna, segura y confiable.</span>
+        </h1>
+        <p class="hero-copy">
+            Equipos para hogar, oficina y entretenimiento: camaras, audio, wearables,
+            computo y mas. Compra facil y confirma tu pedido directo por WhatsApp.
+        </p>
+
+        <div class="hero-actions">
+            <a class="btn-primary" href="#products">Ver productos</a>
+            <a class="btn-outline" href="#products">Explorar catalogo</a>
+        </div>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+        <div class="glow"></div>
+        <div class="floating-card first">
+            <p>Entrega rapida</p>
+            <strong>24-48 horas</strong>
+        </div>
+        <div class="floating-card second">
+            <p>Soporte tecnico</p>
+            <strong>Personalizado</strong>
+        </div>
+    </div>
+</section>
+
+<section class="featured">
+    <h2>Destacados Kincaya</h2>
+    <div class="featured-grid">
+        @for (product of featuredProducts; track product.id) {
+        <article class="featured-card">
+            <img [src]="product.images[0]" [alt]="product.name" loading="lazy" (click)="openProduct(product)" />
+            <div>
+                <h3>{{ product.name }}</h3>
+                <p>{{ product.description }}</p>
+                <div class="featured-actions">
+                    <button type="button" (click)="openProduct(product)">Ver fotos</button>
+                    <button type="button" (click)="addToCart(product)">
+                        Agregar {{ formatPrice(product.price) }}
+                    </button>
+                </div>
+            </div>
+        </article>
+        }
+    </div>
+</section>
+
+<section class="catalog" id="products">
+    <div class="catalog-head">
+        <h2>Catalogo de productos</h2>
+        <p>Explora por categoria y agrega al carrito en un clic.</p>
+    </div>
+
+    <div class="filters" role="tablist" aria-label="Filtrar productos">
+        @for (category of categories; track category) {
+        <button type="button" [class.active]="activeCategory() === category" (click)="selectCategory(category)">
+            {{ category }}
+        </button>
+        }
+    </div>
+
+    <div class="product-grid">
+        @for (product of filteredProducts(); track product.id) {
+        <article class="product-card">
+            <img [src]="product.images[0]" [alt]="product.name" loading="lazy" (click)="openProduct(product)" />
+            <div class="card-content">
+                <p class="category">{{ product.category }}</p>
+                <h3 (click)="openProduct(product)">{{ product.name }}</h3>
+                <p class="description">{{ product.description }}</p>
+
+                <div class="price-row">
+                    <strong>{{ formatPrice(product.price) }}</strong>
+                    <div class="card-buttons">
+                        <button type="button" class="ghost" (click)="openProduct(product)">Ver</button>
+                        <button type="button" class="add-btn" [class.added]="recentlyAddedId() === product.id"
+                            (click)="addToCart(product)">
+                            Agregar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </article>
+        }
+    </div>
+</section>

@@ -1,0 +1,102 @@
+<div class="site-shell">
+    <header class="topbar">
+        <a class="brand" routerLink="/">
+            <span class="brand-mark">K</span>
+            <span class="brand-name">{{ storeName }}</span>
+        </a>
+
+        <nav class="menu" aria-label="Navegacion principal">
+            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+                Productos
+            </a>
+            <a routerLink="/nosotros" routerLinkActive="active">Nosotros</a>
+            <button type="button" (click)="openCart()">Carrito ({{ cartCount() }})</button>
+        </nav>
+    </header>
+
+    <main>
+        <router-outlet />
+    </main>
+
+    <button class="cart-fab" type="button" [class.pulse]="cartPulse()" (click)="openCart()">
+        Carrito {{ cartCount() }}
+    </button>
+
+    <aside class="cart-panel" [class.open]="cartOpen()" aria-label="Carrito de compras">
+        <header>
+            <h3>Tu carrito</h3>
+            <button type="button" (click)="closeCart()">Cerrar</button>
+        </header>
+
+        <div class="cart-items">
+            @if (cartItems().length === 0) {
+            <p class="empty">Tu carrito esta vacio.</p>
+            } @else {
+            @for (item of cartItems(); track item.product.id) {
+            <article class="cart-item" (click)="openProductFromCart(item)">
+                <div class="cart-item-main">
+                    <img [src]="getCartItemImage(item)" [alt]="item.product.name" loading="lazy" />
+                    <div>
+                        <h4>{{ item.product.name }}</h4>
+                        <small>{{ formatPrice(item.product.price) }}</small>
+                    </div>
+                </div>
+                <div class="qty" (click)="$event.stopPropagation()">
+                    <button type="button" (click)="decrease(item)">-</button>
+                    <span>{{ item.quantity }}</span>
+                    <button type="button" (click)="increase(item)">+</button>
+                </div>
+            </article>
+            }
+            }
+        </div>
+
+        <footer>
+            <p>Total</p>
+            <strong>{{ formatPrice(cartTotal()) }}</strong>
+
+            <button class="btn-primary" type="button" [disabled]="cartItems().length === 0" (click)="sendToWhatsApp()">
+                Enviar pedido por WhatsApp
+            </button>
+
+            <button class="btn-outline" type="button" [disabled]="cartItems().length === 0" (click)="clearCart()">
+                Vaciar carrito
+            </button>
+        </footer>
+    </aside>
+
+    <div class="cart-overlay" [class.open]="cartOpen()" (click)="closeCart()"></div>
+
+    @if (viewerProduct(); as product) {
+    <div class="modal-overlay" (click)="closeProductModal()">
+        <section class="modal" (click)="$event.stopPropagation()">
+            <button class="close-modal" type="button" (click)="closeProductModal()">Cerrar</button>
+
+            <div class="modal-grid">
+                <div class="modal-gallery">
+                    <img [src]="viewerImage()" [alt]="product.name" />
+                    @if (getProductImages(product).length > 1) {
+                    <button class="nav-image prev" type="button" (click)="prevModalImage()">&#10094;</button>
+                    <button class="nav-image next" type="button" (click)="nextModalImage()">&#10095;</button>
+                    }
+
+                    <div class="thumbs">
+                        @for (image of getProductImages(product); track image; let i = $index) {
+                        <button type="button" [class.active]="viewerImageIndex() === i" (click)="setModalImage(i)">
+                            <img [src]="image" [alt]="product.name + ' foto ' + (i + 1)" />
+                        </button>
+                        }
+                    </div>
+                </div>
+
+                <div class="modal-info">
+                    <p class="category">{{ product.category }}</p>
+                    <h3>{{ product.name }}</h3>
+                    <p>{{ product.description }}</p>
+                    <strong>{{ formatPrice(product.price) }}</strong>
+                </div>
+            </div>
+        </section>
+    </div>
+    }
+</div>

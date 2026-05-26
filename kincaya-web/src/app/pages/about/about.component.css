@@ -1,0 +1,53 @@
+:host {
+    display: block;
+}
+
+.about-page {
+    padding-block: clamp(2rem, 6vw, 4rem);
+}
+
+.eyebrow {
+    margin: 0;
+    color: #3b9bc6;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.8rem;
+}
+
+h1 {
+    margin: 0.55rem 0 0;
+    font-size: clamp(2rem, 4vw, 3rem);
+}
+
+header>p:last-child {
+    margin-top: 0.9rem;
+    max-width: 62ch;
+    color: #2b2f3a;
+    line-height: 1.5;
+}
+
+.about-grid {
+    margin-top: 1.3rem;
+    display: grid;
+    gap: 0.9rem;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+
+article {
+    background: white;
+    border: 1px solid #d6e1ee;
+    border-radius: 1rem;
+    padding: 1rem;
+    box-shadow: 0 12px 30px rgb(15 31 53 / 10%);
+}
+
+article h2 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+article p {
+    margin: 0.55rem 0 0;
+    color: #2b2f3a;
+}
