@@ -32,7 +32,12 @@
   <aside class="cart-panel" [class.open]="cartOpen()" aria-label="Carrito de compras">
     <header>
       <h3>Tu carrito</h3>
-      <button type="button" (click)="closeCart()">Cerrar</button>
+      <div class="cart-panel-actions">
+        <button type="button" class="toggle-summary" (click)="toggleCartSummary()">
+          {{ cartSummaryExpanded() ? 'Compactar' : 'Expandir' }}
+        </button>
+        <button type="button" (click)="closeCart()">Cerrar</button>
+      </div>
     </header>
 
     <div class="cart-items">
@@ -59,19 +64,49 @@
       }
     </div>
 
-    <footer>
-      <div class="totals">
-        <p>Subtotal</p>
-        <strong>{{ formatPrice(cartTotal()) }}</strong>
-      </div>
-      <div class="totals">
-        <p>Envio</p>
-        <strong>{{ shippingCost() === 0 ? 'Gratis' : formatPrice(shippingCost()) }}</strong>
-      </div>
-      <div class="totals total-main">
-        <p>Total final</p>
-        <strong>{{ formatPrice(grandTotal()) }}</strong>
-      </div>
+    <footer [class.expanded]="cartSummaryExpanded()">
+      <button type="button" class="summary-strip" (click)="toggleCartSummary()"
+        [attr.aria-expanded]="cartSummaryExpanded()">
+        <span>
+          <small>Subtotal</small>
+          <strong>{{ formatPrice(cartTotal()) }}</strong>
+        </span>
+        <span>
+          <small>Envio</small>
+          <strong>{{ shippingCost() === 0 ? 'Gratis' : formatPrice(shippingCost()) }}</strong>
+        </span>
+        <span>
+          <small>Total</small>
+          <strong>{{ formatPrice(grandTotal()) }}</strong>
+        </span>
+        <span class="summary-toggle-label">{{ cartSummaryExpanded() ? 'Ocultar' : 'Ver detalle' }}</span>
+      </button>
+
+      @if (cartSummaryExpanded()) {
+      @if (suggestedProducts().length > 0) {
+      <section class="cart-suggestions" aria-label="Recomendaciones de compra">
+        <button type="button" class="suggestions-head" (click)="openRelatedSuggestionsModal()"
+          aria-label="Ver recomendaciones relacionadas">
+          <strong>Productos similares</strong>
+        </button>
+
+        <div class="cart-suggestions-rail" role="list">
+          @for (product of suggestedProductsPreview(); track product.id) {
+          <article role="listitem" (click)="openRelatedSuggestionsModal(product)">
+            <img [src]="product.images[0]" [alt]="product.name" loading="lazy" (error)="applyImageFallback($event)" />
+            <div>
+              <h4>{{ product.name }}</h4>
+              <small>{{ formatPrice(product.price) }}</small>
+            </div>
+            <button type="button" class="quick-add" (click)="$event.stopPropagation(); addSuggestedProduct(product)"
+              aria-label="Agregar {{ product.name }}">
+              +
+            </button>
+          </article>
+          }
+        </div>
+      </section>
+      }
 
       <div class="shipping-block">
         <p>{{ freeShippingHint() }}</p>
@@ -82,33 +117,103 @@
         <small>Entrega estimada: {{ shippingEstimate() }}</small>
       </div>
 
-      @if (suggestedProducts().length > 0) {
-      <div class="cart-suggestions" aria-label="Recomendaciones de compra">
-        <p class="suggest-title">Tambien te puede interesar</p>
-        @for (product of suggestedProducts(); track product.id) {
-        <article>
+      <small class="checkout-note">Atencion personalizada en menos de 24 horas.</small>
+      }
+
+      <div class="cart-actions-bar">
+        <button class="btn-primary action-confirm" type="button" [disabled]="cartItems().length === 0"
+          (click)="sendToWhatsApp()">
+          Confirmar pedido
+        </button>
+      </div>
+    </footer>
+
+    @if (cartSummaryExpanded() && cartItems().length > 0) {
+    <button type="button" class="cart-clear-fab" (click)="requestClearCart()" aria-label="Vaciar carrito"
+      title="Vaciar carrito">
+      <span aria-hidden="true">&#128465;</span>
+    </button>
+    }
+  </aside>
+
+  @if (cartClearConfirmOpen()) {
+  <div class="cart-clear-overlay" (click)="cancelClearCart()">
+    <section class="cart-clear-modal" (click)="$event.stopPropagation()">
+      <h3>Vaciar carrito</h3>
+      <p>Se eliminaran estos productos del carrito:</p>
+
+      <ul class="cart-clear-list">
+        @for (item of clearCartPreview(); track item.product.id) {
+        <li>
+          <strong>{{ item.product.name }}</strong>
+          <span>{{ item.quantity }} x {{ formatPrice(item.product.price) }}</span>
+        </li>
+        }
+      </ul>
+
+      @if (clearCartRemainderCount() > 0) {
+      <small>Y {{ clearCartRemainderCount() }} producto(s) mas.</small>
+      }
+
+      <div class="cart-clear-actions">
+        <button type="button" class="btn-outline" (click)="cancelClearCart()">Cancelar</button>
+        <button type="button" class="btn-primary" (click)="confirmClearCart()">Si, vaciar</button>
+      </div>
+    </section>
+  </div>
+  }
+
+  @if (relatedSuggestionsModalOpen() && suggestedProducts().length > 0) {
+  <div class="related-overlay" (click)="closeRelatedSuggestionsModal()">
+    <section class="related-modal" (click)="$event.stopPropagation()">
+      <header>
+        <h3>Productos relacionados</h3>
+        <button type="button" (click)="closeRelatedSuggestionsModal()">Cerrar</button>
+      </header>
+
+      @if (activeRelatedSuggestion(); as activeSuggestion) {
+      <div class="related-carousel" aria-label="Carrusel de recomendaciones">
+        <button class="related-nav prev" type="button" (click)="prevRelatedSuggestion()" aria-label="Anterior">
+          &#10094;
+        </button>
+
+        <article class="related-featured">
+          <img [src]="activeSuggestion.images[0]" [alt]="activeSuggestion.name" loading="lazy"
+            (error)="applyImageFallback($event)" />
+          <div>
+            <h4>{{ activeSuggestion.name }}</h4>
+            <p>{{ activeSuggestion.description }}</p>
+            <strong>{{ formatPrice(activeSuggestion.price) }}</strong>
+          </div>
+          <button type="button" class="btn-primary" (click)="addSuggestedProduct(activeSuggestion)">
+            Agregar
+          </button>
+        </article>
+
+        <button class="related-nav next" type="button" (click)="nextRelatedSuggestion()" aria-label="Siguiente">
+          &#10095;
+        </button>
+      </div>
+      }
+
+      <div class="related-grid" role="list">
+        @for (product of suggestedProducts(); track product.id; let i = $index) {
+        <article role="listitem" [class.active]="relatedSuggestionIndex() === i" (click)="setRelatedSuggestion(i)">
           <img [src]="product.images[0]" [alt]="product.name" loading="lazy" (error)="applyImageFallback($event)" />
           <div>
             <h4>{{ product.name }}</h4>
             <small>{{ formatPrice(product.price) }}</small>
           </div>
-          <button type="button" (click)="addSuggestedProduct(product)">+</button>
+          <button type="button" class="quick-add" (click)="$event.stopPropagation(); addSuggestedProduct(product)"
+            aria-label="Agregar {{ product.name }}">
+            +
+          </button>
         </article>
         }
       </div>
-      }
-
-      <button class="btn-primary" type="button" [disabled]="cartItems().length === 0" (click)="sendToWhatsApp()">
-        Confirmar pedido por WhatsApp
-      </button>
-
-      <small class="checkout-note">Atencion personalizada en menos de 24 horas.</small>
-
-      <button class="btn-outline" type="button" [disabled]="cartItems().length === 0" (click)="clearCart()">
-        Vaciar carrito
-      </button>
-    </footer>
-  </aside>
+    </section>
+  </div>
+  }
 
   <div class="cart-overlay" [class.open]="cartOpen()" (click)="closeCart()"></div>
 

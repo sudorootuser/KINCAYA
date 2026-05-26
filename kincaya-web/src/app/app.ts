@@ -21,6 +21,10 @@ export class App {
 
   protected readonly cartOpen = signal(false);
   protected readonly cartPulse = signal(false);
+  protected readonly cartSummaryExpanded = signal(false);
+  protected readonly cartClearConfirmOpen = signal(false);
+  protected readonly relatedSuggestionsModalOpen = signal(false);
+  protected readonly relatedSuggestionIndex = signal(0);
 
   private readonly cartService = inject(CartService);
   private readonly viewer = inject(ProductViewerService);
@@ -39,7 +43,19 @@ export class App {
     const inCart = new Set(this.cartItems().map((item) => item.product.id));
     return this.products()
       .filter((product) => !inCart.has(product.id))
-      .slice(0, 3);
+      .slice(0, 10);
+  });
+  protected readonly suggestedProductsPreview = computed(() =>
+    this.suggestedProducts().slice(0, 4),
+  );
+  protected readonly activeRelatedSuggestion = computed(() => {
+    const suggestions = this.suggestedProducts();
+    if (suggestions.length === 0) {
+      return null;
+    }
+
+    const index = Math.max(0, Math.min(this.relatedSuggestionIndex(), suggestions.length - 1));
+    return suggestions[index] ?? null;
   });
   protected readonly shippingCost = computed(() => (this.cartTotal() >= 150 ? 0 : 4.99));
   protected readonly grandTotal = computed(() => this.cartTotal() + this.shippingCost());
@@ -72,6 +88,23 @@ export class App {
     this.cartService.clear();
   }
 
+  protected requestClearCart(): void {
+    if (this.cartItems().length === 0) {
+      return;
+    }
+
+    this.cartClearConfirmOpen.set(true);
+  }
+
+  protected cancelClearCart(): void {
+    this.cartClearConfirmOpen.set(false);
+  }
+
+  protected confirmClearCart(): void {
+    this.cartService.clear();
+    this.cartClearConfirmOpen.set(false);
+  }
+
   protected openCart(): void {
     this.cartOpen.set(true);
   }
@@ -79,6 +112,16 @@ export class App {
   protected closeCart(): void {
     this.cartOpen.set(false);
   }
+
+  protected toggleCartSummary(): void {
+    this.cartSummaryExpanded.update((value) => !value);
+  }
+
+  protected readonly clearCartPreview = computed(() => this.cartItems().slice(0, 3));
+
+  protected readonly clearCartRemainderCount = computed(() =>
+    Math.max(0, this.cartItems().length - this.clearCartPreview().length),
+  );
 
   protected sendToWhatsApp(): void {
     const items = this.cartItems();
@@ -106,6 +149,53 @@ export class App {
 
   protected addSuggestedProduct(product: Product): void {
     this.cartService.add(product);
+  }
+
+  protected openRelatedSuggestionsModal(initialProduct?: Product): void {
+    const suggestions = this.suggestedProducts();
+    if (suggestions.length === 0) {
+      return;
+    }
+
+    if (initialProduct) {
+      const index = suggestions.findIndex((item) => item.id === initialProduct.id);
+      this.relatedSuggestionIndex.set(index >= 0 ? index : 0);
+    } else {
+      this.relatedSuggestionIndex.set(0);
+    }
+
+    this.relatedSuggestionsModalOpen.set(true);
+  }
+
+  protected closeRelatedSuggestionsModal(): void {
+    this.relatedSuggestionsModalOpen.set(false);
+  }
+
+  protected nextRelatedSuggestion(): void {
+    const total = this.suggestedProducts().length;
+    if (total === 0) {
+      return;
+    }
+
+    this.relatedSuggestionIndex.update((index) => (index + 1) % total);
+  }
+
+  protected prevRelatedSuggestion(): void {
+    const total = this.suggestedProducts().length;
+    if (total === 0) {
+      return;
+    }
+
+    this.relatedSuggestionIndex.update((index) => (index - 1 + total) % total);
+  }
+
+  protected setRelatedSuggestion(index: number): void {
+    const total = this.suggestedProducts().length;
+    if (total === 0) {
+      return;
+    }
+
+    this.relatedSuggestionIndex.set(Math.max(0, Math.min(index, total - 1)));
   }
 
   protected shippingEstimate(): string {
