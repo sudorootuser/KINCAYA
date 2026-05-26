@@ -1,7 +1,7 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 
-import { PRODUCTS } from '../data/products.data';
 import { CartItem, Product } from '../models/product.model';
+import { ProductCatalogService } from './product-catalog.service';
 
 const STORAGE_KEY = 'kincaya_cart_v1';
 
@@ -9,6 +9,8 @@ const STORAGE_KEY = 'kincaya_cart_v1';
   providedIn: 'root',
 })
 export class CartService {
+  private readonly catalogService = inject(ProductCatalogService);
+
   private readonly itemsState = signal<CartItem[]>(this.readStoredItems());
   private readonly addTickState = signal(0);
 
@@ -20,6 +22,10 @@ export class CartService {
   readonly totalPrice = computed(() =>
     this.itemsState().reduce((acc, item) => acc + item.product.price * item.quantity, 0),
   );
+
+  constructor() {
+    this.catalogService.ensureLoaded();
+  }
 
   add(product: Product): void {
     const current = this.itemsState();
@@ -107,7 +113,7 @@ export class CartService {
       return null;
     }
 
-    const byCatalog = PRODUCTS.find((item) => item.id === product.id);
+    const byCatalog = this.catalogService.findById(product.id);
     if (byCatalog) {
       return byCatalog;
     }

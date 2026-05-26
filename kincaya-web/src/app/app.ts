@@ -1,9 +1,9 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
-import { PRODUCTS } from './data/products.data';
 import { CartItem, Product } from './models/product.model';
 import { CartService } from './services/cart.service';
+import { ProductCatalogService } from './services/product-catalog.service';
 import { ProductViewerService } from './services/product-viewer.service';
 import { UxMetricsService } from './services/ux-metrics.service';
 
@@ -25,6 +25,9 @@ export class App {
   private readonly cartService = inject(CartService);
   private readonly viewer = inject(ProductViewerService);
   private readonly metricsService = inject(UxMetricsService);
+  private readonly catalogService = inject(ProductCatalogService);
+
+  protected readonly products = this.catalogService.products;
 
   protected readonly cartItems = this.cartService.items;
   protected readonly cartCount = this.cartService.totalItems;
@@ -34,7 +37,9 @@ export class App {
   protected readonly viewerImageIndex = this.viewer.currentImageIndex;
   protected readonly suggestedProducts = computed(() => {
     const inCart = new Set(this.cartItems().map((item) => item.product.id));
-    return PRODUCTS.filter((product) => !inCart.has(product.id)).slice(0, 3);
+    return this.products()
+      .filter((product) => !inCart.has(product.id))
+      .slice(0, 3);
   });
   protected readonly shippingCost = computed(() => (this.cartTotal() >= 150 ? 0 : 4.99));
   protected readonly grandTotal = computed(() => this.cartTotal() + this.shippingCost());
@@ -44,6 +49,8 @@ export class App {
   });
 
   constructor() {
+    this.catalogService.ensureLoaded();
+
     effect(() => {
       const tick = this.cartService.addTick();
       if (tick > 0) {
@@ -153,7 +160,7 @@ export class App {
   }
 
   protected getCartItemImage(item: CartItem): string {
-    const byCatalog = PRODUCTS.find((product) => product.id === item.product.id);
+    const byCatalog = this.catalogService.findById(item.product.id);
     if (byCatalog?.images?.length) {
       return byCatalog.images[0];
     }

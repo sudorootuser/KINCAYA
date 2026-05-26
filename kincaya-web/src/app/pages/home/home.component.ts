@@ -1,8 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
 
-import { PRODUCTS } from '../../data/products.data';
 import { Product } from '../../models/product.model';
 import { CartService } from '../../services/cart.service';
+import { HomeContentService } from '../../services/home-content.service';
+import { ProductCatalogService } from '../../services/product-catalog.service';
 import { ProductViewerService } from '../../services/product-viewer.service';
 import { UxMetricsService } from '../../services/ux-metrics.service';
 
@@ -16,11 +17,6 @@ type SortMode = 'relevance' | 'priceAsc' | 'priceDesc';
   styleUrl: './home.component.css',
 })
 export class HomeComponent {
-  protected readonly products = PRODUCTS;
-  protected readonly categories = [
-    'Todos',
-    ...new Set(PRODUCTS.map((product) => product.category)),
-  ];
   protected readonly activeCategory = signal('Todos');
   protected readonly searchTerm = signal('');
   protected readonly activePriceBand = signal<PriceBand>('all');
@@ -43,63 +39,26 @@ export class HomeComponent {
     { key: 'priceDesc' as SortMode, label: 'Precio: mayor a menor' },
   ];
 
-  protected readonly collections = [
-    {
-      title: 'Home Office Smart',
-      description: 'Arma un setup eficiente para trabajo remoto y clases.',
-      category: 'Computo',
-      image:
-        'https://images.unsplash.com/photo-1484417894907-623942c8ee29?auto=format&fit=crop&w=900&q=80',
-    },
-    {
-      title: 'Seguridad para tu hogar',
-      description: 'Camaras y kits para monitoreo en tiempo real.',
-      category: 'Seguridad',
-      image:
-        'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=900&q=80',
-    },
-    {
-      title: 'Audio y entretenimiento',
-      description: 'Sonido envolvente para musica, gaming y streaming.',
-      category: 'Audio',
-      image:
-        'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80',
-    },
-  ];
-
-  protected readonly testimonials = [
-    {
-      name: 'Andrea M.',
-      role: 'Cliente recurrente',
-      quote: 'Compre en la manana y el mismo dia me asesoraron por WhatsApp. Super claro todo.',
-      score: '5.0',
-    },
-    {
-      name: 'Luis R.',
-      role: 'Emprendedor',
-      quote:
-        'La experiencia es rapida y sin complicaciones. Me ayudaron a elegir justo lo que necesitaba.',
-      score: '4.9',
-    },
-    {
-      name: 'Carla P.',
-      role: 'Diseño y marketing',
-      quote: 'Buen catalogo, buena atencion y seguimiento real despues de la compra.',
-      score: '5.0',
-    },
-  ];
-
   private readonly cartService = inject(CartService);
   private readonly viewer = inject(ProductViewerService);
   private readonly metricsService = inject(UxMetricsService);
+  private readonly catalogService = inject(ProductCatalogService);
+  private readonly homeContentService = inject(HomeContentService);
 
-  protected readonly featuredProducts = PRODUCTS.filter((product) => product.featured);
-  protected readonly offerProduct = PRODUCTS.find((product) => product.featured) ?? PRODUCTS[0];
+  protected readonly homeContent = this.homeContentService.content;
+  protected readonly products = this.catalogService.products;
+  protected readonly categories = this.catalogService.categories;
+  protected readonly featuredProducts = this.catalogService.featuredProducts;
+  protected readonly offerProduct = computed(
+    () => this.featuredProducts()[0] ?? this.products()[0] ?? null,
+  );
   protected readonly metrics = this.metricsService.metrics;
   protected readonly addToViewRate = this.metricsService.addToViewRate;
   protected readonly checkoutRate = this.metricsService.checkoutRate;
 
   constructor() {
+    this.catalogService.ensureLoaded();
+    this.homeContentService.ensureLoaded();
     this.metricsService.trackVisit();
   }
 
@@ -110,7 +69,7 @@ export class HomeComponent {
     const onlyFeatured = this.onlyFeatured();
     const sortMode = this.sortMode();
 
-    let filtered = this.products;
+    let filtered = this.products();
 
     if (category !== 'Todos') {
       filtered = filtered.filter((product) => product.category === category);
@@ -147,7 +106,7 @@ export class HomeComponent {
   });
 
   protected readonly quickSearchSuggestions = computed(() =>
-    this.products
+    this.products()
       .map((product) => product.name)
       .filter((name, index, source) => source.indexOf(name) === index)
       .slice(0, 8),
@@ -232,16 +191,18 @@ export class HomeComponent {
   }
 
   protected getBadge(product: Product): string {
+    const texts = this.homeContent().badges;
+
     if (product.featured) {
-      return 'Top ventas';
+      return texts.topSales;
     }
 
     if (product.price <= 60) {
-      return 'Oferta';
+      return texts.offer;
     }
 
     if (product.category === 'Wearables' || product.category === 'Camaras') {
-      return 'Nuevo';
+      return texts.new;
     }
 
     return '';
@@ -252,7 +213,8 @@ export class HomeComponent {
   }
 
   protected getOfferPrice(price: number): string {
-    return this.formatPrice(price * 0.85);
+    const discountRate = this.homeContent().offer.discountRate;
+    return this.formatPrice(price * (1 - discountRate));
   }
 
   private sortProducts(products: Product[], mode: SortMode): Product[] {

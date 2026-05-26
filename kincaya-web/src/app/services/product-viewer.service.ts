@@ -1,12 +1,14 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 
-import { PRODUCTS } from '../data/products.data';
 import { Product } from '../models/product.model';
+import { ProductCatalogService } from './product-catalog.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductViewerService {
+  private readonly catalogService = inject(ProductCatalogService);
+
   private readonly selectedProductState = signal<Product | null>(null);
   private readonly currentImageIndexState = signal(0);
 
@@ -24,13 +26,17 @@ export class ProductViewerService {
     return images[index] ?? images[0] ?? '';
   });
 
+  constructor() {
+    this.catalogService.ensureLoaded();
+  }
+
   open(product: Product): void {
     this.selectedProductState.set(this.normalizeProduct(product));
     this.currentImageIndexState.set(0);
   }
 
   openById(productId: number): void {
-    const product = PRODUCTS.find((item) => item.id === productId);
+    const product = this.catalogService.findById(productId);
     if (!product) {
       return;
     }
@@ -77,7 +83,7 @@ export class ProductViewerService {
   }
 
   private normalizeProduct(product: Product): Product {
-    const byCatalog = PRODUCTS.find((item) => item.id === product.id);
+    const byCatalog = this.catalogService.findById(product.id);
     if (byCatalog) {
       return byCatalog;
     }
