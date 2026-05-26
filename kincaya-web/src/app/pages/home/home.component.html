@@ -14,10 +14,26 @@
             <a class="btn-primary" href="#products">Ver productos</a>
             <a class="btn-outline" href="#products">Explorar catalogo</a>
         </div>
+
+        <div class="hero-kpis" aria-label="Beneficios principales">
+            <article>
+                <strong>+500</strong>
+                <span>clientes atendidos</span>
+            </article>
+            <article>
+                <strong>24h</strong>
+                <span>respuesta por WhatsApp</span>
+            </article>
+            <article>
+                <strong>100%</strong>
+                <span>catalogo curado</span>
+            </article>
+        </div>
     </div>
 
     <div class="hero-visual" aria-hidden="true">
         <div class="glow"></div>
+        <img class="hero-logo" src="assets/logos/LOGOS_bolsa-color.svg" alt="" (error)="applyImageFallback($event)" />
         <div class="floating-card first">
             <p>Entrega rapida</p>
             <strong>24-48 horas</strong>
@@ -34,7 +50,8 @@
     <div class="featured-grid">
         @for (product of featuredProducts; track product.id) {
         <article class="featured-card">
-            <img [src]="product.images[0]" [alt]="product.name" loading="lazy" (click)="openProduct(product)" />
+            <img [src]="product.images[0]" [alt]="product.name" loading="lazy" (click)="openProduct(product)"
+                (error)="applyImageFallback($event)" />
             <div>
                 <h3>{{ product.name }}</h3>
                 <p>{{ product.description }}</p>
@@ -54,6 +71,18 @@
     <div class="catalog-head">
         <h2>Catalogo de productos</h2>
         <p>Explora por categoria y agrega al carrito en un clic.</p>
+
+        <div class="search-row">
+            <label class="search-box" for="productSearch">
+                <span>Buscar</span>
+                <input id="productSearch" type="search" placeholder="Ejemplo: camara, audio, smartwatch"
+                    [value]="searchTerm()" (input)="updateSearch($any($event.target).value)" />
+            </label>
+            @if (searchTerm()) {
+            <button type="button" class="clear-search" (click)="clearSearch()">Limpiar</button>
+            }
+        </div>
+        <p class="result-count">{{ filteredProducts().length }} resultados</p>
     </div>
 
     <div class="filters" role="tablist" aria-label="Filtrar productos">
@@ -67,7 +96,8 @@
     <div class="product-grid">
         @for (product of filteredProducts(); track product.id) {
         <article class="product-card">
-            <img [src]="product.images[0]" [alt]="product.name" loading="lazy" (click)="openProduct(product)" />
+            <img [src]="product.images[0]" [alt]="product.name" loading="lazy" (click)="openProduct(product)"
+                (error)="applyImageFallback($event)" />
             <div class="card-content">
                 <p class="category">{{ product.category }}</p>
                 <h3 (click)="openProduct(product)">{{ product.name }}</h3>
@@ -87,4 +117,12 @@
         </article>
         }
     </div>
+
+    @if (filteredProducts().length === 0) {
+    <article class="empty-results" aria-live="polite">
+        <h3>Sin resultados</h3>
+        <p>Prueba con otra categoria o cambia el texto de busqueda para ver mas productos.</p>
+        <button type="button" class="btn-outline" (click)="selectCategory('Todos'); clearSearch()">Ver todo el catalogo</button>
+    </article>
+    }
 </section>

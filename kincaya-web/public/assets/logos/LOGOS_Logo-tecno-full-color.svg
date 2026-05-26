@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 190" role="img" aria-labelledby="title desc">
+  <title id="title">Incaya technology logo with K icon</title>
+  <desc id="desc">Logo con icono de bolsa con K, palabra Incaya y subtitulo technology.</desc>
+  <defs>
+    <linearGradient id="kbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4daed8" />
+      <stop offset="100%" stop-color="#2f8fb9" />
+    </linearGradient>
+  </defs>
+  <rect x="8" y="24" width="142" height="142" rx="10" fill="url(#kbg)" />
+  <path d="M43 28c0-19 14-28 27-28s27 9 27 28" fill="none" stroke="#3b9bc6" stroke-width="4" />
+  <path d="M34 38c0-17 12-24 23-24s23 7 23 24" fill="none" stroke="#3b9bc6" stroke-width="4" />
+  <circle cx="48" cy="38" r="4.5" fill="#f6d33f" stroke="#ffffff" stroke-width="1.5" />
+  <circle cx="92" cy="38" r="4.5" fill="#f6d33f" stroke="#ffffff" stroke-width="1.5" />
+  <path d="M42 44h30v32l32-32h36l-41 46 41 46h-38l-29-35-14 14v21h-17z" fill="#ffffff" />
+  <text x="165" y="122" fill="#2d2f36" font-size="106" font-weight="800" font-family="Montserrat, Segoe UI, Arial, sans-serif">INCAYA</text>
+  <text x="470" y="158" fill="#2d2f36" font-size="48" font-weight="700" font-family="Montserrat, Segoe UI, Arial, sans-serif">technology</text>
+</svg>

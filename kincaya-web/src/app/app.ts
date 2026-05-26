@@ -15,6 +15,8 @@ import { ProductViewerService } from './services/product-viewer.service';
 export class App {
   protected readonly storeName = 'Kincaya';
   protected readonly phoneNumber = '593999999999';
+  protected readonly logoWordmarkPath = 'assets/logos/LOGOS_Logo-tecno-full-color.svg';
+  protected readonly fallbackImagePath = 'assets/placeholders/product-fallback.svg';
 
   protected readonly cartOpen = signal(false);
   protected readonly cartPulse = signal(false);
@@ -109,6 +111,17 @@ export class App {
     }).format(price);
   }
 
+  protected applyImageFallback(event: Event): void {
+    const image = event.target as HTMLImageElement | null;
+    if (!image || image.dataset['fallbackApplied'] === 'true') {
+      return;
+    }
+
+    image.dataset['fallbackApplied'] = 'true';
+    image.src = this.fallbackImagePath;
+    image.classList.add('is-fallback-image');
+  }
+
   protected getCartItemImage(item: CartItem): string {
     const byCatalog = PRODUCTS.find((product) => product.id === item.product.id);
     if (byCatalog?.images?.length) {
@@ -163,6 +176,6 @@ export class App {
   }
 
   private getFallbackImage(): string {
-    return 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80';
+    return this.fallbackImagePath;
   }
 }

@@ -1,12 +1,17 @@
 <section class="about-page">
     <header>
-        <p class="eyebrow">Kincaya tecnologia</p>
+        <p class="eyebrow">Kincaya technology</p>
         <h1>Nosotros</h1>
         <p>
             En Kincaya trabajamos para acercarte tecnologia util, moderna y confiable.
             Buscamos que cada compra sea simple: eliges productos, confirmas por WhatsApp
             y recibes soporte real en todo momento.
         </p>
+
+        <div class="brand-strip" aria-label="Identidad de marca Kincaya">
+            <img src="assets/logos/LOGOS_Logo-tecno-full-color.svg" alt="Logo Kincaya"
+                (error)="applyImageFallback($event)" />
+        </div>
     </header>
 
     <div class="about-grid">
@@ -34,4 +39,10 @@
             </p>
         </article>
     </div>
+
+    <section class="about-cta" aria-label="Atencion al cliente">
+        <h2>Te acompanamos antes, durante y despues de la compra</h2>
+        <p>Atencion personalizada por WhatsApp para resolver dudas y recomendarte el mejor producto segun tu necesidad.</p>
+        <a href="/#products">Ver catalogo completo</a>
+    </section>
 </section>

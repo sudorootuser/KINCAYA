@@ -1,7 +1,7 @@
 <div class="site-shell">
     <header class="topbar">
         <a class="brand" routerLink="/">
-            <span class="brand-mark">K</span>
+            <img class="brand-name-logo" [src]="logoWordmarkPath" [alt]="storeName" (error)="applyImageFallback($event)" />
             <span class="brand-name">{{ storeName }}</span>
         </a>
 
@@ -35,7 +35,8 @@
             @for (item of cartItems(); track item.product.id) {
             <article class="cart-item" (click)="openProductFromCart(item)">
                 <div class="cart-item-main">
-                    <img [src]="getCartItemImage(item)" [alt]="item.product.name" loading="lazy" />
+                    <img [src]="getCartItemImage(item)" [alt]="item.product.name" loading="lazy"
+                        (error)="applyImageFallback($event)" />
                     <div>
                         <h4>{{ item.product.name }}</h4>
                         <small>{{ formatPrice(item.product.price) }}</small>
@@ -74,7 +75,7 @@
 
             <div class="modal-grid">
                 <div class="modal-gallery">
-                    <img [src]="viewerImage()" [alt]="product.name" />
+                    <img [src]="viewerImage()" [alt]="product.name" (error)="applyImageFallback($event)" />
                     @if (getProductImages(product).length > 1) {
                     <button class="nav-image prev" type="button" (click)="prevModalImage()">&#10094;</button>
                     <button class="nav-image next" type="button" (click)="nextModalImage()">&#10095;</button>
@@ -83,7 +84,8 @@
                     <div class="thumbs">
                         @for (image of getProductImages(product); track image; let i = $index) {
                         <button type="button" [class.active]="viewerImageIndex() === i" (click)="setModalImage(i)">
-                            <img [src]="image" [alt]="product.name + ' foto ' + (i + 1)" />
+                            <img [src]="image" [alt]="product.name + ' foto ' + (i + 1)"
+                                (error)="applyImageFallback($event)" />
                         </button>
                         }
                     </div>
