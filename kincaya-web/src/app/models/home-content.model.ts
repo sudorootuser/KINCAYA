@@ -27,7 +27,11 @@ export interface HomeContent {
     tag: string;
     titleLead: string;
     titleHighlight: string;
+    highlightOptions: string[];
     description: string;
+    kpisAriaLabel: string;
+    scrollCueAriaLabel: string;
+    scrollCueText: string;
     primaryActionLabel: string;
     primaryActionHref: string;
     secondaryActionLabel: string;
@@ -36,18 +40,24 @@ export interface HomeContent {
     floatingCards: HomeFloatingCard[];
   };
   trust: {
+    ariaLabel: string;
     stats: HomeHeroKpi[];
   };
   collections: {
+    ariaLabel: string;
     sectionTitle: string;
     sectionDescription: string;
+    exploreLabel: string;
     items: HomeCollection[];
   };
   featured: {
     sectionTitle: string;
     sectionDescription: string;
+    viewPhotosLabel: string;
+    addLabel: string;
   };
   offer: {
+    ariaLabel: string;
     sectionTag: string;
     sectionTitle: string;
     sectionDescription: string;
@@ -58,6 +68,13 @@ export interface HomeContent {
   catalog: {
     sectionTitle: string;
     sectionDescription: string;
+    filtersAriaLabel: string;
+    advancedFiltersAriaLabel: string;
+    paginationAriaLabel: string;
+    prevPageLabel: string;
+    nextPageLabel: string;
+    quickViewLabel: string;
+    addToCartLabel: string;
     searchLabel: string;
     searchPlaceholder: string;
     clearSearchLabel: string;
@@ -70,13 +87,24 @@ export interface HomeContent {
     emptyCtaLabel: string;
   };
   testimonials: {
+    ariaLabel: string;
     sectionTitle: string;
     sectionDescription: string;
+    prevButtonLabel: string;
+    nextButtonLabel: string;
+    navigationAriaLabel: string;
+    goToItemPrefix: string;
+    starsSuffix: string;
+    emptyTitle: string;
+    emptyDescription: string;
     items: HomeTestimonial[];
   };
   metrics: {
+    ariaLabel: string;
     sectionTitle: string;
     sectionDescription: string;
+    activityLabel: string;
+    conversionLabel: string;
     labels: {
       visits: string;
       productViews: string;

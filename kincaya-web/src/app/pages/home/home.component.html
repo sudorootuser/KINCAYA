@@ -26,7 +26,7 @@
         homeContent().hero.secondaryActionLabel }}</a>
     </div>
 
-    <div class="hero-kpis" aria-label="Beneficios principales">
+    <div class="hero-kpis" [attr.aria-label]="homeContent().hero.kpisAriaLabel">
       @for (kpi of homeContent().hero.kpis; track kpi.value + kpi.label) {
       <article>
         <strong>{{ kpi.value }}</strong>
@@ -55,14 +55,14 @@
   </div>
 
   <a class="scroll-cue" href="#products" (click)="handleHeroActionClick($event, '#products')"
-    aria-label="Deslizar hasta el catalogo de productos">
+    [attr.aria-label]="homeContent().hero.scrollCueAriaLabel">
     <span class="scroll-cue-wave" aria-hidden="true"></span>
-    <span class="scroll-cue-text">Desliza para ver productos</span>
+    <span class="scroll-cue-text">{{ homeContent().hero.scrollCueText }}</span>
     <span class="scroll-cue-arrow" aria-hidden="true">&#8595;</span>
   </a>
 </section>
 
-<section class="trust-strip" aria-label="Prueba social">
+<section class="trust-strip" [attr.aria-label]="homeContent().trust.ariaLabel">
   @for (stat of homeContent().trust.stats; track stat.value + stat.label) {
   <article>
     <strong>{{ stat.value }}</strong>
@@ -71,7 +71,7 @@
   }
 </section>
 
-<section class="collections reveal" aria-label="Colecciones destacadas">
+<section class="collections reveal" [attr.aria-label]="homeContent().collections.ariaLabel">
   <div class="section-head">
     <h2>{{ homeContent().collections.sectionTitle }}</h2>
     <p>{{ homeContent().collections.sectionDescription }}</p>
@@ -84,7 +84,8 @@
       <div>
         <h3>{{ collection.title }}</h3>
         <p>{{ collection.description }}</p>
-        <button type="button" (click)="openCollection(collection.category)">Explorar</button>
+        <button type="button" (click)="openCollection(collection.category)">{{ homeContent().collections.exploreLabel
+          }}</button>
       </div>
     </article>
     }
@@ -110,8 +111,8 @@
           <strong>{{ formatPrice(product.price) }}</strong>
         </div>
         <div class="featured-actions">
-          <button type="button" (click)="openProduct(product)">Ver fotos</button>
-          <button type="button" (click)="addToCart(product)">Agregar</button>
+          <button type="button" (click)="openProduct(product)">{{ homeContent().featured.viewPhotosLabel }}</button>
+          <button type="button" (click)="addToCart(product)">{{ homeContent().featured.addLabel }}</button>
         </div>
       </div>
     </article>
@@ -120,7 +121,7 @@
 </section>
 
 <section class="weekly-offer reveal" [class.anchor-focus]="focusedSectionId() === 'offer'" id="offer"
-  aria-label="Oferta semanal">
+  [attr.aria-label]="homeContent().offer.ariaLabel">
   <div class="offer-copy">
     <p class="offer-tag">{{ homeContent().offer.sectionTag }}</p>
     <h2>{{ homeContent().offer.sectionTitle }}</h2>
@@ -174,7 +175,7 @@
     </div>
   </div>
 
-  <div class="filters" role="tablist" aria-label="Filtrar productos por categoria">
+  <div class="filters" role="tablist" [attr.aria-label]="homeContent().catalog.filtersAriaLabel">
     @for (category of categories(); track category) {
     <button type="button" [class.active]="activeCategory() === category" (click)="selectCategory(category)">
       {{ category }}
@@ -182,7 +183,7 @@
     }
   </div>
 
-  <div class="advanced-filters" aria-label="Filtros avanzados">
+  <div class="advanced-filters" [attr.aria-label]="homeContent().catalog.advancedFiltersAriaLabel">
     <div class="price-bands">
       @for (band of priceBands; track band.key) {
       <button type="button" [class.active]="activePriceBand() === band.key" (click)="setPriceBand(band.key)">
@@ -237,11 +238,10 @@
             <strong>{{ formatPrice(product.price) }}</strong>
           </div>
           <div class="card-buttons">
-            <button type="button" class="ghost" (click)="openProduct(product)">Ver</button>
+            <button type="button" class="ghost" (click)="openProduct(product)">{{
+              homeContent().catalog.quickViewLabel }}</button>
             <button type="button" class="add-btn" [class.added]="recentlyAddedId() === product.id"
-              (click)="addToCart(product)">
-              Agregar
-            </button>
+              (click)="addToCart(product)">{{ homeContent().catalog.addToCartLabel }}</button>
           </div>
         </div>
       </div>
@@ -250,8 +250,9 @@
   </div>
 
   @if (filteredProducts().length > 0 && totalProductPages() > 1) {
-  <nav class="catalog-pagination" aria-label="Paginacion de productos">
-    <button type="button" class="page-nav" [disabled]="currentPage() <= 1" (click)="prevPage()">Anterior</button>
+  <nav class="catalog-pagination" [attr.aria-label]="homeContent().catalog.paginationAriaLabel">
+    <button type="button" class="page-nav" [disabled]="currentPage() <= 1" (click)="prevPage()">{{
+      homeContent().catalog.prevPageLabel }}</button>
 
     <div class="page-list">
       @for (page of pageRange(); track page) {
@@ -261,8 +262,8 @@
       }
     </div>
 
-    <button type="button" class="page-nav" [disabled]="currentPage() >= totalProductPages()"
-      (click)="nextPage()">Siguiente</button>
+    <button type="button" class="page-nav" [disabled]="currentPage() >= totalProductPages()" (click)="nextPage()">{{
+      homeContent().catalog.nextPageLabel }}</button>
   </nav>
   }
 
@@ -277,7 +278,7 @@
   }
 </section>
 
-<section class="testimonials reveal" aria-label="Opiniones de clientes">
+<section class="testimonials reveal" [attr.aria-label]="homeContent().testimonials.ariaLabel">
   <div class="section-head">
     <h2>{{ homeContent().testimonials.sectionTitle }}</h2>
     <p>{{ homeContent().testimonials.sectionDescription }}</p>
@@ -288,7 +289,7 @@
     (mouseleave)="resumeTestimonialAutoPlay()">
     <button class="carousel-arrow" type="button" (click)="prevTestimonial()">
       <span aria-hidden="true">&#8249;</span>
-      <span class="sr-only">Testimonio anterior</span>
+      <span class="sr-only">{{ homeContent().testimonials.prevButtonLabel }}</span>
     </button>
 
     <div class="carousel-window">
@@ -296,7 +297,7 @@
         @for (item of testimonials(); track item.name + item.quote) {
         <article class="testimonial-slide">
           <div class="testimonial-quote-icon" aria-hidden="true">&ldquo;</div>
-          <div class="testimonial-stars" [attr.aria-label]="item.score + ' de 5 estrellas'">
+          <div class="testimonial-stars" [attr.aria-label]="item.score + ' ' + homeContent().testimonials.starsSuffix">
             @for (star of getStars(+item.score); track $index) {
             <span class="star" [class.star-full]="star === 'full'">&#9733;</span>
             }
@@ -316,32 +317,33 @@
 
     <button class="carousel-arrow" type="button" (click)="nextTestimonial()">
       <span aria-hidden="true">&#8250;</span>
-      <span class="sr-only">Testimonio siguiente</span>
+      <span class="sr-only">{{ homeContent().testimonials.nextButtonLabel }}</span>
     </button>
   </div>
 
-  <div class="carousel-dots" role="group" aria-label="Navegar testimonios">
+  <div class="carousel-dots" role="group" [attr.aria-label]="homeContent().testimonials.navigationAriaLabel">
     @for (item of testimonials(); track item.name + item.quote; let i = $index) {
     <button class="carousel-dot" [class.carousel-dot-active]="activeTestimonialIndex() === i"
-      (click)="goToTestimonial(i)" [attr.aria-label]="'Ir al testimonio ' + (i + 1)"></button>
+      (click)="goToTestimonial(i)"
+      [attr.aria-label]="homeContent().testimonials.goToItemPrefix + ' ' + (i + 1)"></button>
     }
   </div>
   } @else {
   <article class="empty-results" aria-live="polite">
-    <h3>Pronto publicaremos nuevos comentarios</h3>
-    <p>Esta seccion se conectara a la base de datos para mostrar opiniones reales de clientes.</p>
+    <h3>{{ homeContent().testimonials.emptyTitle }}</h3>
+    <p>{{ homeContent().testimonials.emptyDescription }}</p>
   </article>
   }
 </section>
 
-<section class="metrics reveal" aria-label="Metricas de conversion">
+<section class="metrics reveal" [attr.aria-label]="homeContent().metrics.ariaLabel">
   <div class="section-head">
     <h2>{{ homeContent().metrics.sectionTitle }}</h2>
     <p>{{ homeContent().metrics.sectionDescription }}</p>
   </div>
   <div class="metrics-layout">
     <div class="metrics-activity">
-      <p class="metrics-sub-label">Actividad en sesi&#243;n</p>
+      <p class="metrics-sub-label">{{ homeContent().metrics.activityLabel }}</p>
       <div class="metrics-counters">
         <article class="metrics-counter-card">
           <strong class="metrics-value">{{ metrics().visits }}</strong>
@@ -363,7 +365,7 @@
     </div>
 
     <div class="metrics-rates">
-      <p class="metrics-sub-label">Tasas de conversi&#243;n</p>
+      <p class="metrics-sub-label">{{ homeContent().metrics.conversionLabel }}</p>
       <div class="conversion-list">
         <article class="conversion-item">
           <div class="conversion-header">
