@@ -38,7 +38,8 @@
 
   <div class="hero-visual" aria-hidden="true">
     <div class="glow"></div>
-    <img class="hero-logo" src="assets/logos/LOGOS_bolsa-color.svg" alt="" (error)="applyImageFallback($event)" />
+    <img class="hero-logo" src="assets/logos/LOGOS_bolsa-color.svg" alt="" width="256" height="256" fetchpriority="high"
+      decoding="async" (error)="applyImageFallback($event)" />
     @if (homeContent().hero.floatingCards.length > 0) {
     <div class="floating-card first">
       <p>{{ homeContent().hero.floatingCards[0].label }}</p>
@@ -78,7 +79,8 @@
   <div class="collection-grid">
     @for (collection of homeContent().collections.items; track collection.title) {
     <article class="collection-card">
-      <img [src]="collection.image" [alt]="collection.title" loading="lazy" (error)="applyImageFallback($event)" />
+      <img [src]="collection.image" [alt]="collection.title" loading="lazy" width="1200" height="800" decoding="async"
+        (error)="applyImageFallback($event)" />
       <div>
         <h3>{{ collection.title }}</h3>
         <p>{{ collection.description }}</p>
@@ -98,8 +100,8 @@
     @for (product of featuredShowcaseProducts(); track product.id) {
     <article class="featured-card">
       <span class="badge">{{ getBadge(product) }}</span>
-      <img [src]="product.images[0]" [alt]="product.name" loading="lazy" (click)="openProduct(product)"
-        (error)="applyImageFallback($event)" />
+      <img [src]="product.images[0]" [alt]="product.name" loading="lazy" width="1200" height="900" decoding="async"
+        (click)="openProduct(product)" (error)="applyImageFallback($event)" />
       <div>
         <h3>{{ product.name }}</h3>
         <p>{{ product.description }}</p>
@@ -140,8 +142,8 @@
   </div>
   @if (offerProduct(); as offerItem) {
   <article class="offer-card">
-    <img [src]="offerItem.images[0]" [alt]="offerItem.name" loading="lazy" (click)="openProduct(offerItem)"
-      (error)="applyImageFallback($event)" />
+    <img [src]="offerItem.images[0]" [alt]="offerItem.name" loading="lazy" width="1200" height="900" decoding="async"
+      (click)="openProduct(offerItem)" (error)="applyImageFallback($event)" />
     <h3>{{ offerItem.name }}</h3>
     <p>{{ offerItem.description }}</p>
   </article>
@@ -218,10 +220,10 @@
       <span class="badge">{{ getBadge(product) }}</span>
       }
       <div class="image-stack" (click)="openProduct(product)">
-        <img class="img-main" [src]="product.images[0]" [alt]="product.name" loading="lazy"
-          (error)="applyImageFallback($event)" />
+        <img class="img-main" [src]="product.images[0]" [alt]="product.name" loading="lazy" width="1200" height="900"
+          decoding="async" (error)="applyImageFallback($event)" />
         <img class="img-hover" [src]="product.images[1] || product.images[0]" [alt]="product.name" loading="lazy"
-          (error)="applyImageFallback($event)" />
+          width="1200" height="900" decoding="async" (error)="applyImageFallback($event)" />
       </div>
 
       <div class="card-content">
@@ -251,9 +253,9 @@
   <nav class="catalog-pagination" aria-label="Paginacion de productos">
     <button type="button" class="page-nav" [disabled]="currentPage() <= 1" (click)="prevPage()">Anterior</button>
 
-    <div class="page-list" role="list">
+    <div class="page-list">
       @for (page of pageRange(); track page) {
-      <button type="button" role="listitem" [class.active]="currentPage() === page" (click)="goToPage(page)">
+      <button type="button" [class.active]="currentPage() === page" (click)="goToPage(page)">
         {{ page }}
       </button>
       }
@@ -281,13 +283,17 @@
     <p>{{ homeContent().testimonials.sectionDescription }}</p>
   </div>
 
+  @if (testimonials().length > 0) {
   <div class="testimonial-carousel" (mouseenter)="pauseTestimonialAutoPlay()"
     (mouseleave)="resumeTestimonialAutoPlay()">
-    <button class="carousel-arrow" (click)="prevTestimonial()" aria-label="Testimonio anterior">&#8249;</button>
+    <button class="carousel-arrow" type="button" (click)="prevTestimonial()">
+      <span aria-hidden="true">&#8249;</span>
+      <span class="sr-only">Testimonio anterior</span>
+    </button>
 
     <div class="carousel-window">
       <div class="carousel-track" [style.transform]="'translateX(-' + activeTestimonialIndex() * 100 + '%)'">
-        @for (item of homeContent().testimonials.items; track item.name) {
+        @for (item of testimonials(); track item.name + item.quote) {
         <article class="testimonial-slide">
           <div class="testimonial-quote-icon" aria-hidden="true">&ldquo;</div>
           <div class="testimonial-stars" [attr.aria-label]="item.score + ' de 5 estrellas'">
@@ -308,15 +314,24 @@
       </div>
     </div>
 
-    <button class="carousel-arrow" (click)="nextTestimonial()" aria-label="Testimonio siguiente">&#8250;</button>
+    <button class="carousel-arrow" type="button" (click)="nextTestimonial()">
+      <span aria-hidden="true">&#8250;</span>
+      <span class="sr-only">Testimonio siguiente</span>
+    </button>
   </div>
 
   <div class="carousel-dots" role="group" aria-label="Navegar testimonios">
-    @for (item of homeContent().testimonials.items; track item.name; let i = $index) {
+    @for (item of testimonials(); track item.name + item.quote; let i = $index) {
     <button class="carousel-dot" [class.carousel-dot-active]="activeTestimonialIndex() === i"
       (click)="goToTestimonial(i)" [attr.aria-label]="'Ir al testimonio ' + (i + 1)"></button>
     }
   </div>
+  } @else {
+  <article class="empty-results" aria-live="polite">
+    <h3>Pronto publicaremos nuevos comentarios</h3>
+    <p>Esta seccion se conectara a la base de datos para mostrar opiniones reales de clientes.</p>
+  </article>
+  }
 </section>
 
 <section class="metrics reveal" aria-label="Metricas de conversion">

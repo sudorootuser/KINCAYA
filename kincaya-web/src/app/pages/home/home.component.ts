@@ -13,6 +13,7 @@ import { CartService } from '../../services/cart.service';
 import { HomeContentService } from '../../services/home-content.service';
 import { ProductCatalogService } from '../../services/product-catalog.service';
 import { ProductViewerService } from '../../services/product-viewer.service';
+import { TestimonialService } from '../../services/testimonial.service';
 import { UxMetricsService } from '../../services/ux-metrics.service';
 
 type PriceBand = 'all' | 'under60' | 'from60to120' | 'over120';
@@ -68,10 +69,12 @@ export class HomeComponent implements OnDestroy {
   private readonly metricsService = inject(UxMetricsService);
   private readonly catalogService = inject(ProductCatalogService);
   private readonly homeContentService = inject(HomeContentService);
+  private readonly testimonialService = inject(TestimonialService);
 
   protected readonly homeContent = this.homeContentService.content;
   protected readonly products = this.catalogService.products;
   protected readonly categories = this.catalogService.categories;
+  protected readonly testimonials = this.testimonialService.items;
   protected readonly featuredProducts = this.catalogService.featuredProducts;
   protected readonly featuredShowcaseProducts = computed(() => {
     const featured = this.featuredProducts();
@@ -84,9 +87,7 @@ export class HomeComponent implements OnDestroy {
   protected readonly offerProduct = computed(
     () => this.featuredShowcaseProducts()[0] ?? this.products()[0] ?? null,
   );
-  protected readonly totalTestimonials = computed(
-    () => this.homeContent().testimonials.items.length,
-  );
+  protected readonly totalTestimonials = computed(() => this.testimonials().length);
   protected readonly heroHighlightOptions = computed(() => {
     const options = ['hogar y oficina.', 'tecnologia diaria.', 'negocio y trabajo.'];
 
@@ -118,12 +119,25 @@ export class HomeComponent implements OnDestroy {
   constructor() {
     this.catalogService.ensureLoaded();
     this.homeContentService.ensureLoaded();
+    this.testimonialService.ensureLoaded();
     this.metricsService.trackVisit();
 
     effect(() => {
       const totalPages = this.totalProductPages();
       if (this.currentPage() > totalPages) {
         this.currentPage.set(totalPages);
+      }
+    });
+
+    effect(() => {
+      const totalTestimonials = this.totalTestimonials();
+      if (totalTestimonials <= 0) {
+        this.activeTestimonialIndex.set(0);
+        return;
+      }
+
+      if (this.activeTestimonialIndex() >= totalTestimonials) {
+        this.activeTestimonialIndex.set(0);
       }
     });
 
@@ -162,16 +176,28 @@ export class HomeComponent implements OnDestroy {
   }
 
   protected nextTestimonial(): void {
-    this.activeTestimonialIndex.update((i) => (i + 1) % this.totalTestimonials());
+    const total = this.totalTestimonials();
+    if (total <= 1) {
+      return;
+    }
+
+    this.activeTestimonialIndex.update((i) => (i + 1) % total);
   }
 
   protected prevTestimonial(): void {
-    this.activeTestimonialIndex.update(
-      (i) => (i - 1 + this.totalTestimonials()) % this.totalTestimonials(),
-    );
+    const total = this.totalTestimonials();
+    if (total <= 1) {
+      return;
+    }
+
+    this.activeTestimonialIndex.update((i) => (i - 1 + total) % total);
   }
 
   protected goToTestimonial(index: number): void {
+    if (this.totalTestimonials() <= 0) {
+      return;
+    }
+
     this.activeTestimonialIndex.set(index);
   }
 
@@ -233,8 +259,9 @@ export class HomeComponent implements OnDestroy {
 
   private startTestimonialAutoPlay(): void {
     this.testimonialTimer = setInterval(() => {
-      if (!this.testimonialPaused) {
-        this.activeTestimonialIndex.update((i) => (i + 1) % this.totalTestimonials());
+      const total = this.totalTestimonials();
+      if (!this.testimonialPaused && total > 1) {
+        this.activeTestimonialIndex.update((i) => (i + 1) % total);
       }
     }, 5000);
   }

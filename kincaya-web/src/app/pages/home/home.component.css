@@ -1057,7 +1057,19 @@ img.is-fallback-image {
 
 .testimonial-info span {
   font-size: 0.85rem;
-  color: #6f7785;
+  color: #4b5563;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .carousel-arrow {
@@ -1130,7 +1142,7 @@ img.is-fallback-image {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #3b9bc6;
+  color: #1f6f94;
 }
 
 .metrics-counters {
@@ -1380,6 +1392,42 @@ img.is-fallback-image {
 @media (max-width: 640px) {
   .carousel-arrow {
     display: none;
+  }
+
+  .testimonial-carousel {
+    margin-top: 1rem;
+  }
+
+  .testimonial-slide {
+    border-radius: 1.1rem;
+    padding: 1.2rem 1rem 1rem;
+  }
+
+  .testimonial-quote-icon {
+    font-size: 3.6rem;
+    top: 0.25rem;
+    left: 0.75rem;
+  }
+
+  .testimonial-text {
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+
+  .testimonial-avatar {
+    width: 2.3rem;
+    height: 2.3rem;
+    font-size: 1rem;
+  }
+
+  .carousel-dots {
+    margin-top: 0.75rem;
+  }
+
+  .carousel-dot {
+    width: 0.65rem;
+    height: 0.65rem;
   }
 
   .hero-visual {
