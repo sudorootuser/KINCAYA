@@ -89,7 +89,7 @@ export class HomeComponent implements OnDestroy {
   );
   protected readonly totalTestimonials = computed(() => this.testimonials().length);
   protected readonly heroHighlightOptions = computed(() => {
-    const options = ['hogar y oficina.', 'tecnologia diaria.', 'negocio y trabajo.'];
+    const options = this.homeContent().hero.highlightOptions ?? [];
 
     return options.filter((text, index, list) => list.indexOf(text) === index);
   });
