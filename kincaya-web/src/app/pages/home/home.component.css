@@ -1381,6 +1381,43 @@ img.is-fallback-image {
   .carousel-arrow {
     display: none;
   }
+
+  .hero-visual {
+    min-height: 13.5rem;
+    padding-inline: 0.3rem;
+  }
+
+  .glow {
+    inset: 10% 0 8% 0;
+  }
+
+  .hero-logo {
+    width: clamp(3.9rem, 16vw, 4.8rem);
+    top: 52%;
+  }
+
+  .floating-card {
+    min-width: 8.6rem;
+    padding: 0.72rem 0.8rem;
+  }
+
+  .floating-card p {
+    font-size: 0.72rem;
+  }
+
+  .floating-card strong {
+    font-size: 0.9rem;
+  }
+
+  .floating-card.first {
+    top: 8%;
+    right: 0.35rem;
+  }
+
+  .floating-card.second {
+    bottom: 7%;
+    left: 0.35rem;
+  }
 }
 
 @media (max-width: 640px) {
@@ -1395,5 +1432,29 @@ img.is-fallback-image {
 
   .advanced-filters {
     align-items: stretch;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero-visual {
+    min-height: 12.8rem;
+  }
+
+  .hero-logo {
+    width: clamp(3.6rem, 15vw, 4.3rem);
+    top: 53%;
+  }
+
+  .floating-card {
+    min-width: 8.1rem;
+    padding: 0.66rem 0.72rem;
+  }
+
+  .floating-card p {
+    font-size: 0.69rem;
+  }
+
+  .floating-card strong {
+    font-size: 0.84rem;
   }
 }
