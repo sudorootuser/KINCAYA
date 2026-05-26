@@ -75,8 +75,8 @@
 
       <div class="shipping-block">
         <p>{{ freeShippingHint() }}</p>
-        <div class="shipping-progress" role="progressbar" [attr.aria-valuenow]="freeShippingProgress()" aria-valuemin="0"
-          aria-valuemax="100">
+        <div class="shipping-progress" role="progressbar" [attr.aria-valuenow]="freeShippingProgress()"
+          aria-valuemin="0" aria-valuemax="100">
           <span [style.width.%]="freeShippingProgress()"></span>
         </div>
         <small>Entrega estimada: {{ shippingEstimate() }}</small>

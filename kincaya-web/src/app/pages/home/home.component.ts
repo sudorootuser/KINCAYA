@@ -77,7 +77,8 @@ export class HomeComponent {
     {
       name: 'Luis R.',
       role: 'Emprendedor',
-      quote: 'La experiencia es rapida y sin complicaciones. Me ayudaron a elegir justo lo que necesitaba.',
+      quote:
+        'La experiencia es rapida y sin complicaciones. Me ayudaron a elegir justo lo que necesitaba.',
       score: '4.9',
     },
     {
@@ -153,7 +154,8 @@ export class HomeComponent {
   );
 
   protected readonly hasAdvancedFilters = computed(
-    () => this.activePriceBand() !== 'all' || this.onlyFeatured() || this.sortMode() !== 'relevance',
+    () =>
+      this.activePriceBand() !== 'all' || this.onlyFeatured() || this.sortMode() !== 'relevance',
   );
 
   protected selectCategory(category: string): void {
