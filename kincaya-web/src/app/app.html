@@ -9,6 +9,7 @@
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
         Productos
       </a>
+      <a routerLink="/historial" routerLinkActive="active">Historial</a>
       <a routerLink="/nosotros" routerLinkActive="active">Nosotros</a>
       <button type="button" (click)="openAdvisorWhatsApp()">Asesor WhatsApp</button>
       <button type="button" (click)="openCart()">
@@ -24,6 +25,7 @@
   <nav class="mobile-nav" aria-label="Navegacion movil">
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
     <a href="/#products">Catalogo</a>
+    <a routerLink="/historial" routerLinkActive="active">Historial</a>
     <a routerLink="/nosotros" routerLinkActive="active">Nosotros</a>
     <button type="button" (click)="openAdvisorWhatsApp()">WhatsApp</button>
     <button type="button" (click)="openCart()">{{ cartCount() > 0 ? 'Carrito ' + cartCount() : 'Carrito' }}</button>

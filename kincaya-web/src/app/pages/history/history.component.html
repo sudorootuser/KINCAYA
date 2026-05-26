@@ -1,0 +1,57 @@
+<section class="history-page">
+    <header class="history-head">
+        <div>
+            <p class="eyebrow">Pedidos confirmados</p>
+            <h1>Historial</h1>
+            <p>Consulta tus pedidos guardados, revisa la factura PDF y vuelve a enviarlos por WhatsApp.</p>
+        </div>
+
+        @if (hasEntries()) {
+        <button type="button" class="clear-history" (click)="clearAllHistory()">Borrar historial</button>
+        }
+    </header>
+
+    @if (!hasEntries()) {
+    <article class="history-empty">
+        <h2>No hay pedidos guardados</h2>
+        <p>Cuando confirmes un pedido en el carrito se guardara aqui automaticamente.</p>
+        <a routerLink="/">Ir a productos</a>
+    </article>
+    } @else {
+    <div class="history-list" role="list">
+        @for (entry of entries(); track entry.id) {
+        <article class="history-card" role="listitem">
+            <header>
+                <div>
+                    <h2>Pedido {{ entry.snapshot.reference }}</h2>
+                    <p>{{ formatDate(entry.createdAtIso) }}</p>
+                </div>
+                <button type="button" class="remove" (click)="removeEntry(entry.id)">Eliminar</button>
+            </header>
+
+            <ul>
+                @for (item of entry.snapshot.items; track item.name + item.unitPrice) {
+                <li>
+                    <span>{{ item.name }} x {{ item.quantity }}</span>
+                    <strong>{{ formatPrice(item.total) }}</strong>
+                </li>
+                }
+            </ul>
+
+            <div class="totals">
+                <span>Subtotal: <strong>{{ formatPrice(entry.snapshot.subtotal) }}</strong></span>
+                <span>Envio: <strong>{{ entry.snapshot.shipping === 0 ? 'Gratis' : formatPrice(entry.snapshot.shipping)
+                        }}</strong></span>
+                <span>Total: <strong>{{ formatPrice(entry.snapshot.total) }}</strong></span>
+            </div>
+
+            <div class="actions">
+                <button type="button" (click)="previewPdf(entry)">Ver PDF</button>
+                <button type="button" (click)="downloadPdf(entry)">Descargar PDF</button>
+                <button type="button" class="whatsapp" (click)="resendToWhatsApp(entry)">Enviar WhatsApp</button>
+            </div>
+        </article>
+        }
+    </div>
+    }
+</section>

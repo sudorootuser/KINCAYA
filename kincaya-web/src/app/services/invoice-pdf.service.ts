@@ -20,11 +20,29 @@ export type InvoiceSnapshot = {
   providedIn: 'root',
 })
 export class InvoicePdfService {
-  async downloadTemporaryInvoice(snapshot: InvoiceSnapshot): Promise<void> {
+  async downloadTemporaryInvoice(snapshot: InvoiceSnapshot, filePrefix = 'factura'): Promise<void> {
     if (typeof window === 'undefined') {
       return;
     }
 
+    const doc = await this.createDocument(snapshot);
+    doc.save(`${filePrefix}-${snapshot.reference}.pdf`);
+  }
+
+  async openInvoicePreview(snapshot: InvoiceSnapshot): Promise<void> {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const doc = await this.createDocument(snapshot);
+    const blob = doc.output('blob');
+    const url = window.URL.createObjectURL(blob);
+
+    window.open(url, '_blank', 'noopener,noreferrer');
+    window.setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
+  }
+
+  private async createDocument(snapshot: InvoiceSnapshot): Promise<any> {
     const { jsPDF } = await import('jspdf');
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -133,6 +151,6 @@ export class InvoicePdfService {
     y += 14;
     doc.text('Soporte y confirmacion por WhatsApp en menos de 24 horas.', marginLeft, y);
 
-    doc.save(`factura-${snapshot.reference}.pdf`);
+    return doc;
   }
 }

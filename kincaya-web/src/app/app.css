@@ -100,7 +100,7 @@ main {
   bottom: 0;
   z-index: 23;
   display: none;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 0.4rem;
   padding: 0.55rem 0.7rem;
   background: rgb(255 255 255 / 95%);
@@ -132,6 +132,7 @@ main {
   text-decoration: none;
   color: #2b2f3a;
   font-weight: 700;
+  font-size: 0.72rem;
   background: transparent;
   cursor: pointer;
 }
