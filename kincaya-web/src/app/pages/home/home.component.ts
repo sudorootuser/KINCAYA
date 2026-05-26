@@ -28,6 +28,8 @@ export class HomeComponent implements OnDestroy {
   protected readonly activeTestimonialIndex = signal(0);
   protected readonly heroHighlightIndex = signal(0);
   protected readonly heroHighlightChanging = signal(false);
+  protected readonly heroHighlightOutgoingText = signal<string | null>(null);
+  protected readonly heroHighlightIncomingText = signal<string | null>(null);
   private testimonialTimer: ReturnType<typeof setInterval> | null = null;
   private heroHighlightTimer: ReturnType<typeof setInterval> | null = null;
   private heroHighlightSwapTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -63,13 +65,19 @@ export class HomeComponent implements OnDestroy {
     () => this.homeContent().testimonials.items.length,
   );
   protected readonly heroHighlightOptions = computed(() => {
-    const options = [
-      'hogar y oficina.',
-      'tecnologia diaria.',
-      'negocio y trabajo.',
-    ];
+    const options = ['hogar y oficina.', 'tecnologia diaria.', 'negocio y trabajo.'];
 
     return options.filter((text, index, list) => list.indexOf(text) === index);
+  });
+  protected readonly heroHighlightSizerText = computed(() => {
+    const options = this.heroHighlightOptions();
+    if (options.length === 0) {
+      return this.homeContent().hero.titleHighlight;
+    }
+
+    return options.reduce((longest, current) =>
+      current.length > longest.length ? current : longest,
+    );
   });
   protected readonly rotatingHeroHighlight = computed(() => {
     const options = this.heroHighlightOptions();
@@ -175,16 +183,24 @@ export class HomeComponent implements OnDestroy {
         return;
       }
 
-      this.heroHighlightChanging.set(true);
-
       if (this.heroHighlightSwapTimeout !== null) {
         clearTimeout(this.heroHighlightSwapTimeout);
       }
 
+      const currentText = this.rotatingHeroHighlight();
+      const nextIndex = (this.heroHighlightIndex() + 1) % options.length;
+      const nextText = options[nextIndex] ?? this.homeContent().hero.titleHighlight;
+
+      this.heroHighlightOutgoingText.set(currentText);
+      this.heroHighlightIncomingText.set(nextText);
+      this.heroHighlightChanging.set(true);
+      this.heroHighlightIndex.set(nextIndex);
+
       this.heroHighlightSwapTimeout = setTimeout(() => {
-        this.heroHighlightIndex.update((index) => (index + 1) % options.length);
         this.heroHighlightChanging.set(false);
-      }, 260);
+        this.heroHighlightOutgoingText.set(null);
+        this.heroHighlightIncomingText.set(null);
+      }, 420);
     }, 4300);
   }
 

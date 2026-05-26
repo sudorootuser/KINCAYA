@@ -35,25 +35,50 @@ h1 {
   max-width: 14ch;
 }
 
-h1 span {
-  display: block;
+.hero-content h1>.hero-rotating-highlight {
+  display: inline-grid;
+  grid-template: 1fr / 1fr;
   margin-top: 0.45rem;
   color: #3b9bc6;
+  vertical-align: top;
 }
 
 .hero-rotating-highlight {
-  display: block;
-  min-height: 1.25em;
+  display: inline-grid;
+  grid-template: 1fr / 1fr;
   font-size: clamp(1.40rem, 3.9vw, 3.0rem);
   line-height: 1.08;
   white-space: nowrap;
-  transition: opacity 260ms ease, transform 260ms ease;
+}
+
+.hero-rotating-highlight-sizer,
+.hero-rotating-layer {
+  grid-area: 1 / 1;
+  display: block;
+  white-space: nowrap;
+}
+
+.hero-rotating-highlight-sizer {
+  visibility: hidden;
+  user-select: none;
+  pointer-events: none;
+}
+
+.hero-rotating-layer {
   will-change: opacity, transform;
 }
 
-.hero-rotating-highlight.is-changing {
-  opacity: 0;
-  transform: translateY(6px);
+.hero-rotating-layer-static {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hero-rotating-layer-out {
+  animation: hero-highlight-exit 420ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.hero-rotating-layer-in {
+  animation: hero-highlight-enter 420ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 .hero-copy {
@@ -1164,6 +1189,30 @@ img.is-fallback-image {
 
   100% {
     transform: scale(1);
+  }
+}
+
+@keyframes hero-highlight-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-highlight-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
   }
 }
 

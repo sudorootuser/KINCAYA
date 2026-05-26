@@ -3,8 +3,15 @@
     <p class="tag">{{ homeContent().hero.tag }}</p>
     <h1>
       {{ homeContent().hero.titleLead }}
-      <span class="hero-rotating-highlight" [class.is-changing]="heroHighlightChanging()">{{
-        rotatingHeroHighlight() }}</span>
+      <span class="hero-rotating-highlight" [class.is-changing]="heroHighlightChanging()">
+        <span class="hero-rotating-highlight-sizer" aria-hidden="true">{{ heroHighlightSizerText() }}</span>
+        @if (heroHighlightChanging()) {
+        <span class="hero-rotating-layer hero-rotating-layer-out">{{ heroHighlightOutgoingText() }}</span>
+        <span class="hero-rotating-layer hero-rotating-layer-in">{{ heroHighlightIncomingText() }}</span>
+        } @else {
+        <span class="hero-rotating-layer hero-rotating-layer-static">{{ rotatingHeroHighlight() }}</span>
+        }
+      </span>
     </h1>
     <p class="hero-copy">
       {{ homeContent().hero.description }}
