@@ -15,7 +15,7 @@ import { UxMetricsService } from './services/ux-metrics.service';
 })
 export class App {
   protected readonly storeName = 'Kincaya';
-  protected readonly phoneNumber = '593999999999';
+  protected readonly phoneNumber = '573227405024';
   protected readonly logoWordmarkPath = 'assets/logos/LOGOS_Logo-tecno-full-color.svg';
   protected readonly fallbackImagePath = 'assets/placeholders/product-fallback.svg';
 

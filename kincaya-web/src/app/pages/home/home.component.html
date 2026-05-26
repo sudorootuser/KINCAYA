@@ -252,13 +252,11 @@
         <button class="carousel-arrow" (click)="prevTestimonial()" aria-label="Testimonio anterior">&#8249;</button>
 
         <div class="carousel-window">
-            <div class="carousel-track"
-                [style.transform]="'translateX(-' + activeTestimonialIndex() * 100 + '%)'">
+            <div class="carousel-track" [style.transform]="'translateX(-' + activeTestimonialIndex() * 100 + '%)'">
                 @for (item of homeContent().testimonials.items; track item.name) {
                 <article class="testimonial-slide">
                     <div class="testimonial-quote-icon" aria-hidden="true">&ldquo;</div>
-                    <div class="testimonial-stars"
-                        [attr.aria-label]="item.score + ' de 5 estrellas'">
+                    <div class="testimonial-stars" [attr.aria-label]="item.score + ' de 5 estrellas'">
                         @for (star of getStars(+item.score); track $index) {
                         <span class="star" [class.star-full]="star === 'full'">&#9733;</span>
                         }
@@ -321,8 +319,8 @@
                 <article class="conversion-item">
                     <div class="conversion-header">
                         <p class="conversion-label">{{ homeContent().metrics.labels.addToViewRate }}</p>
-                        <strong class="conversion-value"
-                            [class.rate-good]="addToViewRate() >= 15">{{ addToViewRate().toFixed(1) }}%</strong>
+                        <strong class="conversion-value" [class.rate-good]="addToViewRate() >= 15">{{
+                            addToViewRate().toFixed(1) }}%</strong>
                     </div>
                     <div class="conversion-bar-track">
                         <div class="conversion-bar" [style.width.%]="clampRate(addToViewRate())"></div>
@@ -331,8 +329,8 @@
                 <article class="conversion-item">
                     <div class="conversion-header">
                         <p class="conversion-label">{{ homeContent().metrics.labels.checkoutRate }}</p>
-                        <strong class="conversion-value"
-                            [class.rate-good]="checkoutRate() >= 10">{{ checkoutRate().toFixed(1) }}%</strong>
+                        <strong class="conversion-value" [class.rate-good]="checkoutRate() >= 10">{{
+                            checkoutRate().toFixed(1) }}%</strong>
                     </div>
                     <div class="conversion-bar-track">
                         <div class="conversion-bar" [style.width.%]="clampRate(checkoutRate())"></div>
