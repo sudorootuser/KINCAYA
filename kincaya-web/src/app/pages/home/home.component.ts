@@ -66,7 +66,6 @@ export class HomeComponent implements OnDestroy {
     const options = [
       'hogar y oficina.',
       'tecnologia diaria.',
-      'equipos confiables.',
       'negocio y trabajo.',
     ];
 
