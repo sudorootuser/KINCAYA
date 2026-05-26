@@ -29,6 +29,12 @@
     Carrito {{ cartCount() }}
   </button>
 
+  @if (addToastVisible()) {
+  <div class="add-toast" role="status" aria-live="polite">
+    {{ addToastMessage() }}
+  </div>
+  }
+
   <aside class="cart-panel" [class.open]="cartOpen()" aria-label="Carrito de compras">
     <header>
       <h3>Tu carrito</h3>
@@ -96,12 +102,11 @@
             <img [src]="product.images[0]" [alt]="product.name" loading="lazy" (error)="applyImageFallback($event)" />
             <div>
               <h4>{{ product.name }}</h4>
-              <small>{{ formatPrice(product.price) }}</small>
+              <div class="price-stock-row">
+                <small>{{ formatPrice(product.price) }}</small>
+                <small class="stock-chip">stk {{ availableStock(product) }}</small>
+              </div>
             </div>
-            <button type="button" class="quick-add" (click)="$event.stopPropagation(); addSuggestedProduct(product)"
-              aria-label="Agregar {{ product.name }}">
-              +
-            </button>
           </article>
           }
         </div>
@@ -184,8 +189,10 @@
             <h4>{{ activeSuggestion.name }}</h4>
             <p>{{ activeSuggestion.description }}</p>
             <strong>{{ formatPrice(activeSuggestion.price) }}</strong>
+            <small class="stock-tag">Disponibles: {{ availableStock(activeSuggestion) }}</small>
           </div>
-          <button type="button" class="btn-primary" (click)="addSuggestedProduct(activeSuggestion)">
+          <button type="button" class="btn-primary" [disabled]="!hasStock(activeSuggestion)"
+            (click)="addSuggestedProduct(activeSuggestion)">
             Agregar
           </button>
         </article>
@@ -203,10 +210,11 @@
           <div>
             <h4>{{ product.name }}</h4>
             <small>{{ formatPrice(product.price) }}</small>
+            <small class="stock-tag">Disponibles: {{ availableStock(product) }}</small>
           </div>
-          <button type="button" class="quick-add" (click)="$event.stopPropagation(); addSuggestedProduct(product)"
-            aria-label="Agregar {{ product.name }}">
-            +
+          <button type="button" class="quick-add" [disabled]="!hasStock(product)"
+            (click)="$event.stopPropagation(); addSuggestedProduct(product)" aria-label="Agregar {{ product.name }}">
+            <span class="quick-add-icon" aria-hidden="true">&#10010;</span>
           </button>
         </article>
         }

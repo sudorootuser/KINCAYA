@@ -14,6 +14,8 @@ import { UxMetricsService } from './services/ux-metrics.service';
   styleUrl: './app.css',
 })
 export class App {
+  private static readonly DEFAULT_PRODUCT_STOCK = 8;
+
   protected readonly storeName = 'Kincaya';
   protected readonly phoneNumber = '573227405024';
   protected readonly logoWordmarkPath = 'assets/logos/LOGOS_Logo-tecno-full-color.svg';
@@ -25,6 +27,11 @@ export class App {
   protected readonly cartClearConfirmOpen = signal(false);
   protected readonly relatedSuggestionsModalOpen = signal(false);
   protected readonly relatedSuggestionIndex = signal(0);
+  protected readonly cartSuggestionStartIndex = signal(0);
+  protected readonly addToastVisible = signal(false);
+  protected readonly addToastMessage = signal('');
+
+  private addToastTimeoutId?: ReturnType<typeof setTimeout>;
 
   private readonly cartService = inject(CartService);
   private readonly viewer = inject(ProductViewerService);
@@ -40,14 +47,23 @@ export class App {
   protected readonly viewerImage = this.viewer.currentImage;
   protected readonly viewerImageIndex = this.viewer.currentImageIndex;
   protected readonly suggestedProducts = computed(() => {
-    const inCart = new Set(this.cartItems().map((item) => item.product.id));
+    const quantities = this.getCartQuantitiesMap();
     return this.products()
-      .filter((product) => !inCart.has(product.id))
+      .filter((product) => this.getAvailableStock(product, quantities) > 0)
       .slice(0, 10);
   });
-  protected readonly suggestedProductsPreview = computed(() =>
-    this.suggestedProducts().slice(0, 4),
-  );
+  protected readonly suggestedProductsPreview = computed(() => {
+    const suggestions = this.suggestedProducts();
+    if (suggestions.length <= 4) {
+      return suggestions;
+    }
+
+    const startIndex = this.cartSuggestionStartIndex() % suggestions.length;
+    return Array.from(
+      { length: 4 },
+      (_, offset) => suggestions[(startIndex + offset) % suggestions.length],
+    );
+  });
   protected readonly activeRelatedSuggestion = computed(() => {
     const suggestions = this.suggestedProducts();
     if (suggestions.length === 0) {
@@ -72,7 +88,38 @@ export class App {
       if (tick > 0) {
         this.triggerCartPulse();
         this.playAddSound();
+        this.showAddToast();
       }
+    });
+
+    effect((onCleanup) => {
+      if (typeof window === 'undefined') {
+        return;
+      }
+
+      const shouldRotateInCart =
+        this.cartOpen() && this.cartSummaryExpanded() && this.suggestedProducts().length > 1;
+      if (!shouldRotateInCart) {
+        return;
+      }
+
+      const intervalId = window.setInterval(() => this.nextCartSuggestionSlide(), 2600);
+      onCleanup(() => window.clearInterval(intervalId));
+    });
+
+    effect((onCleanup) => {
+      if (typeof window === 'undefined') {
+        return;
+      }
+
+      const shouldRotateInModal =
+        this.relatedSuggestionsModalOpen() && this.suggestedProducts().length > 1;
+      if (!shouldRotateInModal) {
+        return;
+      }
+
+      const intervalId = window.setInterval(() => this.nextRelatedSuggestion(), 2400);
+      onCleanup(() => window.clearInterval(intervalId));
     });
   }
 
@@ -81,7 +128,13 @@ export class App {
   }
 
   protected decrease(item: CartItem): void {
+    const message =
+      item.quantity <= 1
+        ? `Se elimino ${item.product.name} del carrito.`
+        : `Se removio 1 unidad de ${item.product.name}.`;
+
     this.cartService.decrease(item.product.id);
+    this.showToast(message);
   }
 
   protected clearCart(): void {
@@ -114,7 +167,13 @@ export class App {
   }
 
   protected toggleCartSummary(): void {
-    this.cartSummaryExpanded.update((value) => !value);
+    this.cartSummaryExpanded.update((value) => {
+      const next = !value;
+      if (next && this.suggestedProducts().length > 1) {
+        this.nextCartSuggestionSlide();
+      }
+      return next;
+    });
   }
 
   protected readonly clearCartPreview = computed(() => this.cartItems().slice(0, 3));
@@ -148,7 +207,19 @@ export class App {
   }
 
   protected addSuggestedProduct(product: Product): void {
+    if (this.availableStock(product) <= 0) {
+      return;
+    }
+
     this.cartService.add(product);
+  }
+
+  protected availableStock(product: Product): number {
+    return this.getAvailableStock(product, this.getCartQuantitiesMap());
+  }
+
+  protected hasStock(product: Product): boolean {
+    return this.availableStock(product) > 0;
   }
 
   protected openRelatedSuggestionsModal(initialProduct?: Product): void {
@@ -196,6 +267,15 @@ export class App {
     }
 
     this.relatedSuggestionIndex.set(Math.max(0, Math.min(index, total - 1)));
+  }
+
+  protected nextCartSuggestionSlide(): void {
+    const total = this.suggestedProducts().length;
+    if (total <= 1) {
+      return;
+    }
+
+    this.cartSuggestionStartIndex.update((index) => (index + 1) % total);
   }
 
   protected shippingEstimate(): string {
@@ -271,9 +351,53 @@ export class App {
     return [this.getFallbackImage()];
   }
 
+  private getCartQuantitiesMap(): Map<number, number> {
+    return new Map(this.cartItems().map((item) => [item.product.id, item.quantity]));
+  }
+
+  private getProductStock(product: Product): number {
+    const value = Number(product.stock);
+    if (Number.isFinite(value)) {
+      return Math.max(0, Math.floor(value));
+    }
+
+    return App.DEFAULT_PRODUCT_STOCK;
+  }
+
+  private getAvailableStock(product: Product, quantities: Map<number, number>): number {
+    const inCart = quantities.get(product.id) ?? 0;
+    return Math.max(0, this.getProductStock(product) - inCart);
+  }
+
   private triggerCartPulse(): void {
     this.cartPulse.set(true);
     setTimeout(() => this.cartPulse.set(false), 420);
+  }
+
+  private showAddToast(): void {
+    const productName = this.cartService.lastAddedProductName();
+    const message = productName
+      ? `Se agrego ${productName} al carrito.`
+      : 'Producto agregado al carrito.';
+
+    this.showToast(message);
+  }
+
+  private showToast(message: string): void {
+    if (!message) {
+      return;
+    }
+
+    this.addToastMessage.set(message);
+    this.addToastVisible.set(true);
+
+    if (this.addToastTimeoutId) {
+      clearTimeout(this.addToastTimeoutId);
+    }
+
+    this.addToastTimeoutId = setTimeout(() => {
+      this.addToastVisible.set(false);
+    }, 2200);
   }
 
   private playAddSound(): void {

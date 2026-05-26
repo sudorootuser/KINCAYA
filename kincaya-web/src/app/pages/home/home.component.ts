@@ -26,7 +26,11 @@ export class HomeComponent implements OnDestroy {
   protected readonly recentlyAddedId = signal<number | null>(null);
   protected readonly fallbackImagePath = 'assets/placeholders/product-fallback.svg';
   protected readonly activeTestimonialIndex = signal(0);
+  protected readonly heroHighlightIndex = signal(0);
+  protected readonly heroHighlightChanging = signal(false);
   private testimonialTimer: ReturnType<typeof setInterval> | null = null;
+  private heroHighlightTimer: ReturnType<typeof setInterval> | null = null;
+  private heroHighlightSwapTimeout: ReturnType<typeof setTimeout> | null = null;
   private testimonialPaused = false;
 
   protected readonly priceBands = [
@@ -58,6 +62,25 @@ export class HomeComponent implements OnDestroy {
   protected readonly totalTestimonials = computed(
     () => this.homeContent().testimonials.items.length,
   );
+  protected readonly heroHighlightOptions = computed(() => {
+    const options = [
+      'hogar y oficina.',
+      'tecnologia diaria.',
+      'equipos confiables.',
+      'negocio y trabajo.',
+    ];
+
+    return options.filter((text, index, list) => list.indexOf(text) === index);
+  });
+  protected readonly rotatingHeroHighlight = computed(() => {
+    const options = this.heroHighlightOptions();
+    if (options.length === 0) {
+      return this.homeContent().hero.titleHighlight;
+    }
+
+    const index = this.heroHighlightIndex() % options.length;
+    return options[index] ?? this.homeContent().hero.titleHighlight;
+  });
   protected readonly metrics = this.metricsService.metrics;
   protected readonly addToViewRate = this.metricsService.addToViewRate;
   protected readonly checkoutRate = this.metricsService.checkoutRate;
@@ -70,12 +93,21 @@ export class HomeComponent implements OnDestroy {
     afterNextRender(() => {
       this.setupScrollReveal();
       this.startTestimonialAutoPlay();
+      this.startHeroHighlightRotation();
     });
   }
 
   ngOnDestroy(): void {
     if (this.testimonialTimer !== null) {
       clearInterval(this.testimonialTimer);
+    }
+
+    if (this.heroHighlightTimer !== null) {
+      clearInterval(this.heroHighlightTimer);
+    }
+
+    if (this.heroHighlightSwapTimeout !== null) {
+      clearTimeout(this.heroHighlightSwapTimeout);
     }
   }
 
@@ -135,6 +167,26 @@ export class HomeComponent implements OnDestroy {
         this.activeTestimonialIndex.update((i) => (i + 1) % this.totalTestimonials());
       }
     }, 5000);
+  }
+
+  private startHeroHighlightRotation(): void {
+    this.heroHighlightTimer = setInterval(() => {
+      const options = this.heroHighlightOptions();
+      if (options.length <= 1) {
+        return;
+      }
+
+      this.heroHighlightChanging.set(true);
+
+      if (this.heroHighlightSwapTimeout !== null) {
+        clearTimeout(this.heroHighlightSwapTimeout);
+      }
+
+      this.heroHighlightSwapTimeout = setTimeout(() => {
+        this.heroHighlightIndex.update((index) => (index + 1) % options.length);
+        this.heroHighlightChanging.set(false);
+      }, 260);
+    }, 4300);
   }
 
   protected readonly filteredProducts = computed(() => {

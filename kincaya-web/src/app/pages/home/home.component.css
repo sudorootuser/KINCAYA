@@ -41,6 +41,21 @@ h1 span {
   color: #3b9bc6;
 }
 
+.hero-rotating-highlight {
+  display: block;
+  min-height: 1.25em;
+  font-size: clamp(1.40rem, 3.9vw, 3.0rem);
+  line-height: 1.08;
+  white-space: nowrap;
+  transition: opacity 260ms ease, transform 260ms ease;
+  will-change: opacity, transform;
+}
+
+.hero-rotating-highlight.is-changing {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
 .hero-copy {
   margin: 1rem 0 0;
   max-width: 52ch;

@@ -4,6 +4,7 @@ import { CartItem, Product } from '../models/product.model';
 import { ProductCatalogService } from './product-catalog.service';
 
 const STORAGE_KEY = 'kincaya_cart_v1';
+const DEFAULT_PRODUCT_STOCK = 8;
 
 @Injectable({
   providedIn: 'root',
@@ -13,9 +14,11 @@ export class CartService {
 
   private readonly itemsState = signal<CartItem[]>(this.readStoredItems());
   private readonly addTickState = signal(0);
+  private readonly lastAddedProductNameState = signal('');
 
   readonly items = computed(() => this.itemsState());
   readonly addTick = computed(() => this.addTickState());
+  readonly lastAddedProductName = computed(() => this.lastAddedProductNameState());
   readonly totalItems = computed(() =>
     this.itemsState().reduce((acc, item) => acc + item.quantity, 0),
   );
@@ -30,27 +33,45 @@ export class CartService {
   add(product: Product): void {
     const current = this.itemsState();
     const found = current.find((item) => item.product.id === product.id);
+    const stock = this.getProductStock(product);
+
+    if (stock <= 0) {
+      return;
+    }
 
     if (found) {
+      if (found.quantity >= stock) {
+        return;
+      }
+
       this.itemsState.set(
         current.map((item) =>
           item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item,
         ),
       );
       this.persist();
+      this.lastAddedProductNameState.set(product.name);
       this.addTickState.update((value) => value + 1);
       return;
     }
 
     this.itemsState.set([...current, { product, quantity: 1 }]);
     this.persist();
+    this.lastAddedProductNameState.set(product.name);
     this.addTickState.update((value) => value + 1);
   }
 
   increase(productId: number): void {
+    const stock = this.getProductStock(this.catalogService.findById(productId));
+    if (stock <= 0) {
+      return;
+    }
+
     this.itemsState.set(
       this.itemsState().map((item) =>
-        item.product.id === productId ? { ...item, quantity: item.quantity + 1 } : item,
+        item.product.id === productId
+          ? { ...item, quantity: Math.min(stock, item.quantity + 1) }
+          : item,
       ),
     );
     this.persist();
@@ -91,9 +112,14 @@ export class CartService {
       return parsed
         .map((item) => {
           const normalizedProduct = this.normalizeProduct(item.product as any);
-          const quantity = Number.isFinite(item.quantity) ? Math.max(1, item.quantity) : 1;
+          const rawQuantity = Number.isFinite(item.quantity) ? Math.max(1, item.quantity) : 1;
 
           if (!normalizedProduct) {
+            return null;
+          }
+
+          const quantity = Math.min(rawQuantity, this.getProductStock(normalizedProduct));
+          if (quantity <= 0) {
             return null;
           }
 
@@ -131,9 +157,19 @@ export class CartService {
       name: String(product.name ?? 'Producto'),
       category: String(product.category ?? 'General'),
       price: Number(product.price) || 0,
+      stock: this.getProductStock(product),
       images,
       description: String(product.description ?? 'Sin descripcion'),
     };
+  }
+
+  private getProductStock(product: Product | undefined | null): number {
+    const value = Number(product?.stock);
+    if (Number.isFinite(value)) {
+      return Math.max(0, Math.floor(value));
+    }
+
+    return DEFAULT_PRODUCT_STOCK;
   }
 
   private persist(): void {
