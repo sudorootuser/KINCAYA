@@ -9,8 +9,8 @@
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
         Productos
       </a>
+      <a routerLink="/historial" routerLinkActive="active">Historial</a>
       <a routerLink="/nosotros" routerLinkActive="active">Nosotros</a>
-      <button type="button" (click)="openAdvisorWhatsApp()">Asesor WhatsApp</button>
       <button type="button" (click)="openCart()">
         {{ cartCount() > 0 ? 'Carrito (' + cartCount() + ')' : 'Carrito' }}
       </button>
@@ -24,14 +24,18 @@
   <nav class="mobile-nav" aria-label="Navegacion movil">
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
     <a href="/#products">Catalogo</a>
+    <a routerLink="/historial" routerLinkActive="active">Historial</a>
     <a routerLink="/nosotros" routerLinkActive="active">Nosotros</a>
-    <button type="button" (click)="openAdvisorWhatsApp()">WhatsApp</button>
     <button type="button" (click)="openCart()">{{ cartCount() > 0 ? 'Carrito ' + cartCount() : 'Carrito' }}</button>
   </nav>
 
   <button class="whatsapp-fab" type="button" (click)="openAdvisorWhatsApp()"
     aria-label="Hablar con asesor por WhatsApp">
-    WhatsApp Asesor
+    <svg class="wa-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+      <path fill="currentColor"
+        d="M16 3C8.82 3 3 8.56 3 15.43c0 2.42.73 4.67 1.99 6.56L3 29l7.27-1.9a13.3 13.3 0 0 0 5.73 1.29c7.18 0 13-5.56 13-12.43C29 8.56 23.18 3 16 3zm0 22.99c-1.93 0-3.82-.52-5.46-1.49l-.39-.23-4.32 1.13 1.16-4.16-.25-.41a10.2 10.2 0 0 1-1.56-5.4C5.18 9.83 10.02 5.3 16 5.3c5.98 0 10.82 4.53 10.82 10.13 0 5.6-4.84 10.56-10.82 10.56zm5.94-7.64c-.32-.15-1.89-.9-2.18-1-.29-.1-.5-.15-.71.15-.21.3-.81 1-1 1.2-.18.2-.37.22-.68.07-.32-.15-1.33-.48-2.53-1.54-.94-.83-1.57-1.86-1.75-2.16-.18-.3-.02-.47.13-.62.13-.13.31-.33.46-.5.15-.18.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.71-1.66-.97-2.27-.25-.6-.51-.52-.71-.53h-.61c-.2 0-.52.07-.79.37-.27.3-1.04 1-1.04 2.45 0 1.45 1.07 2.85 1.22 3.05.15.2 2.08 3.28 5.18 4.46.74.31 1.32.5 1.77.63.74.23 1.42.2 1.96.12.6-.09 1.89-.77 2.15-1.5.27-.74.27-1.37.19-1.5-.08-.13-.29-.2-.61-.35z" />
+    </svg>
+    <span class="wa-label">Asesor</span>
   </button>
 
   @if (cartCount() > 0) {

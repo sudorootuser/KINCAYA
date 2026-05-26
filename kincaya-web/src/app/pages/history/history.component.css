@@ -1,0 +1,190 @@
+:host {
+    display: block;
+}
+
+.history-page {
+    padding-block: clamp(1.6rem, 5vw, 3rem);
+    display: grid;
+    gap: 1rem;
+}
+
+.history-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.8rem;
+    align-items: flex-start;
+    border: 1px solid #d6e1ee;
+    border-radius: 1rem;
+    padding: 1rem;
+    background: linear-gradient(155deg, #ffffff, #edf6fd);
+}
+
+.eyebrow {
+    margin: 0;
+    color: #235f7d;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+h1 {
+    margin: 0.4rem 0 0;
+    font-size: clamp(1.7rem, 3.8vw, 2.4rem);
+}
+
+.history-head p {
+    margin: 0.55rem 0 0;
+    color: #334155;
+    max-width: 62ch;
+}
+
+.clear-history {
+    border: 1px solid #e8b4b4;
+    border-radius: 0.7rem;
+    background: #fff5f5;
+    color: #8f1d1d;
+    font-weight: 700;
+    padding: 0.55rem 0.85rem;
+    cursor: pointer;
+}
+
+.history-empty {
+    border: 1px solid #d6e1ee;
+    border-radius: 1rem;
+    padding: 1rem;
+    background: #ffffff;
+}
+
+.history-empty h2 {
+    margin: 0;
+}
+
+.history-empty p {
+    margin: 0.5rem 0 0.9rem;
+    color: #475569;
+}
+
+.history-empty a {
+    display: inline-flex;
+    text-decoration: none;
+    border: 1px solid #3b9bc6;
+    border-radius: 0.7rem;
+    color: #1c5b79;
+    background: rgb(59 155 198 / 12%);
+    padding: 0.55rem 0.8rem;
+    font-weight: 700;
+}
+
+.history-list {
+    display: grid;
+    gap: 0.9rem;
+}
+
+.history-card {
+    border: 1px solid #d6e1ee;
+    border-radius: 0.95rem;
+    background: #ffffff;
+    padding: 0.9rem;
+    box-shadow: 0 8px 20px rgb(15 31 53 / 8%);
+}
+
+.history-card header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.6rem;
+}
+
+.history-card h2 {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.history-card header p {
+    margin: 0.35rem 0 0;
+    color: #64748b;
+    font-size: 0.84rem;
+}
+
+.history-card .remove {
+    border: 1px solid #e8b4b4;
+    border-radius: 0.65rem;
+    background: #fff;
+    color: #8f1d1d;
+    font-weight: 700;
+    padding: 0.45rem 0.68rem;
+    cursor: pointer;
+}
+
+.history-card ul {
+    list-style: none;
+    margin: 0.85rem 0;
+    padding: 0;
+    display: grid;
+    gap: 0.35rem;
+}
+
+.history-card li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    color: #1f2937;
+}
+
+.history-card li strong {
+    color: #0f2a3f;
+}
+
+.totals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 0.8rem;
+    padding: 0.6rem;
+    border: 1px solid #d6e1ee;
+    border-radius: 0.75rem;
+    background: linear-gradient(150deg, #f9fcff, #edf6fd);
+}
+
+.totals span {
+    color: #334155;
+    font-size: 0.9rem;
+}
+
+.totals strong {
+    color: #123f55;
+}
+
+.actions {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.actions button {
+    border: 1px solid #d6e1ee;
+    border-radius: 0.7rem;
+    background: #ffffff;
+    color: #1f2937;
+    padding: 0.55rem 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.actions .whatsapp {
+    border-color: #39b96e;
+    background: rgb(57 185 110 / 12%);
+    color: #176638;
+}
+
+@media (max-width: 760px) {
+    .history-head {
+        flex-direction: column;
+    }
+
+    .totals {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+}

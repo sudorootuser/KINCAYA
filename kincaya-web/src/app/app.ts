@@ -4,6 +4,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { CartItem, Product } from './models/product.model';
 import { CartService } from './services/cart.service';
 import { InvoicePdfService, InvoiceSnapshot } from './services/invoice-pdf.service';
+import { OrderHistoryService } from './services/order-history.service';
 import { ProductCatalogService } from './services/product-catalog.service';
 import { ProductViewerService } from './services/product-viewer.service';
 import { UxMetricsService } from './services/ux-metrics.service';
@@ -40,6 +41,7 @@ export class App {
   private readonly metricsService = inject(UxMetricsService);
   private readonly catalogService = inject(ProductCatalogService);
   private readonly invoicePdfService = inject(InvoicePdfService);
+  private readonly orderHistoryService = inject(OrderHistoryService);
 
   protected readonly products = this.catalogService.products;
 
@@ -208,6 +210,8 @@ export class App {
     }
 
     const snapshot = this.createInvoiceSnapshot();
+    this.orderHistoryService.add(snapshot);
+
     try {
       await this.invoicePdfService.downloadTemporaryInvoice(snapshot);
       this.showToast(`Factura temporal PDF descargada: ${snapshot.reference}`);
@@ -269,6 +273,10 @@ export class App {
     const url = `https://wa.me/${this.phoneNumber}?text=${encodeURIComponent(message)}`;
     this.metricsService.trackCheckoutIntent();
     window.open(url, '_blank', 'noopener,noreferrer');
+
+    this.cartService.clear();
+    this.cartOpen.set(false);
+    this.cartSummaryExpanded.set(false);
   }
 
   protected addSuggestedProduct(product: Product): void {
