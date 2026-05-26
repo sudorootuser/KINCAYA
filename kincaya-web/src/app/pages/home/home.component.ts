@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { afterNextRender, Component, computed, inject, OnDestroy, signal } from '@angular/core';
 
 import { Product } from '../../models/product.model';
 import { CartService } from '../../services/cart.service';
@@ -16,7 +16,7 @@ type SortMode = 'relevance' | 'priceAsc' | 'priceDesc';
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
-export class HomeComponent {
+export class HomeComponent implements OnDestroy {
   protected readonly activeCategory = signal('Todos');
   protected readonly searchTerm = signal('');
   protected readonly activePriceBand = signal<PriceBand>('all');
@@ -25,6 +25,9 @@ export class HomeComponent {
   protected readonly lastTrackedSearch = signal('');
   protected readonly recentlyAddedId = signal<number | null>(null);
   protected readonly fallbackImagePath = 'assets/placeholders/product-fallback.svg';
+  protected readonly activeTestimonialIndex = signal(0);
+  private testimonialTimer: ReturnType<typeof setInterval> | null = null;
+  private testimonialPaused = false;
 
   protected readonly priceBands = [
     { key: 'all' as PriceBand, label: 'Todo precio' },
@@ -52,6 +55,9 @@ export class HomeComponent {
   protected readonly offerProduct = computed(
     () => this.featuredProducts()[0] ?? this.products()[0] ?? null,
   );
+  protected readonly totalTestimonials = computed(
+    () => this.homeContent().testimonials.items.length,
+  );
   protected readonly metrics = this.metricsService.metrics;
   protected readonly addToViewRate = this.metricsService.addToViewRate;
   protected readonly checkoutRate = this.metricsService.checkoutRate;
@@ -60,6 +66,75 @@ export class HomeComponent {
     this.catalogService.ensureLoaded();
     this.homeContentService.ensureLoaded();
     this.metricsService.trackVisit();
+
+    afterNextRender(() => {
+      this.setupScrollReveal();
+      this.startTestimonialAutoPlay();
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.testimonialTimer !== null) {
+      clearInterval(this.testimonialTimer);
+    }
+  }
+
+  protected nextTestimonial(): void {
+    this.activeTestimonialIndex.update((i) => (i + 1) % this.totalTestimonials());
+  }
+
+  protected prevTestimonial(): void {
+    this.activeTestimonialIndex.update(
+      (i) => (i - 1 + this.totalTestimonials()) % this.totalTestimonials(),
+    );
+  }
+
+  protected goToTestimonial(index: number): void {
+    this.activeTestimonialIndex.set(index);
+  }
+
+  protected pauseTestimonialAutoPlay(): void {
+    this.testimonialPaused = true;
+  }
+
+  protected resumeTestimonialAutoPlay(): void {
+    this.testimonialPaused = false;
+  }
+
+  protected getStars(score: number): Array<'full' | 'empty'> {
+    const fullCount = Math.round(score);
+    return Array.from({ length: 5 }, (_, i) => (i < fullCount ? 'full' : 'empty'));
+  }
+
+  protected clampRate(rate: number): number {
+    return Math.min(Math.max(rate, 0), 100);
+  }
+
+  private setupScrollReveal(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+          }
+        });
+      },
+      { threshold: 0.08 },
+    );
+
+    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+  }
+
+  private startTestimonialAutoPlay(): void {
+    this.testimonialTimer = setInterval(() => {
+      if (!this.testimonialPaused) {
+        this.activeTestimonialIndex.update((i) => (i + 1) % this.totalTestimonials());
+      }
+    }, 5000);
   }
 
   protected readonly filteredProducts = computed(() => {

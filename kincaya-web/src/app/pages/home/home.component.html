@@ -53,7 +53,7 @@
     }
 </section>
 
-<section class="collections" aria-label="Colecciones destacadas">
+<section class="collections reveal" aria-label="Colecciones destacadas">
     <div class="section-head">
         <h2>{{ homeContent().collections.sectionTitle }}</h2>
         <p>{{ homeContent().collections.sectionDescription }}</p>
@@ -73,7 +73,7 @@
     </div>
 </section>
 
-<section class="featured">
+<section class="featured reveal">
     <div class="section-head">
         <h2>{{ homeContent().featured.sectionTitle }}</h2>
         <p>{{ homeContent().featured.sectionDescription }}</p>
@@ -101,7 +101,7 @@
     </div>
 </section>
 
-<section class="weekly-offer" id="offer" aria-label="Oferta semanal">
+<section class="weekly-offer reveal" id="offer" aria-label="Oferta semanal">
     <div class="offer-copy">
         <p class="offer-tag">{{ homeContent().offer.sectionTag }}</p>
         <h2>{{ homeContent().offer.sectionTitle }}</h2>
@@ -241,52 +241,104 @@
     }
 </section>
 
-<section class="testimonials" aria-label="Opiniones de clientes">
+<section class="testimonials reveal" aria-label="Opiniones de clientes">
     <div class="section-head">
         <h2>{{ homeContent().testimonials.sectionTitle }}</h2>
         <p>{{ homeContent().testimonials.sectionDescription }}</p>
     </div>
-    <div class="testimonial-grid">
-        @for (item of homeContent().testimonials.items; track item.name) {
-        <article>
-            <p class="score">{{ item.score }} / 5</p>
-            <p class="quote">"{{ item.quote }}"</p>
-            <strong>{{ item.name }}</strong>
-            <span>{{ item.role }}</span>
-        </article>
+
+    <div class="testimonial-carousel" (mouseenter)="pauseTestimonialAutoPlay()"
+        (mouseleave)="resumeTestimonialAutoPlay()">
+        <button class="carousel-arrow" (click)="prevTestimonial()" aria-label="Testimonio anterior">&#8249;</button>
+
+        <div class="carousel-window">
+            <div class="carousel-track"
+                [style.transform]="'translateX(-' + activeTestimonialIndex() * 100 + '%)'">
+                @for (item of homeContent().testimonials.items; track item.name) {
+                <article class="testimonial-slide">
+                    <div class="testimonial-quote-icon" aria-hidden="true">&ldquo;</div>
+                    <div class="testimonial-stars"
+                        [attr.aria-label]="item.score + ' de 5 estrellas'">
+                        @for (star of getStars(+item.score); track $index) {
+                        <span class="star" [class.star-full]="star === 'full'">&#9733;</span>
+                        }
+                    </div>
+                    <blockquote class="testimonial-text">"{{ item.quote }}"</blockquote>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar" aria-hidden="true">{{ item.name[0] }}</div>
+                        <div class="testimonial-info">
+                            <strong>{{ item.name }}</strong>
+                            <span>{{ item.role }}</span>
+                        </div>
+                    </div>
+                </article>
+                }
+            </div>
+        </div>
+
+        <button class="carousel-arrow" (click)="nextTestimonial()" aria-label="Testimonio siguiente">&#8250;</button>
+    </div>
+
+    <div class="carousel-dots" role="group" aria-label="Navegar testimonios">
+        @for (item of homeContent().testimonials.items; track item.name; let i = $index) {
+        <button class="carousel-dot" [class.carousel-dot-active]="activeTestimonialIndex() === i"
+            (click)="goToTestimonial(i)" [attr.aria-label]="'Ir al testimonio ' + (i + 1)"></button>
         }
     </div>
 </section>
 
-<section class="metrics" aria-label="Metricas de conversion">
+<section class="metrics reveal" aria-label="Metricas de conversion">
     <div class="section-head">
         <h2>{{ homeContent().metrics.sectionTitle }}</h2>
         <p>{{ homeContent().metrics.sectionDescription }}</p>
     </div>
-    <div class="metrics-grid">
-        <article>
-            <p>{{ homeContent().metrics.labels.visits }}</p>
-            <strong>{{ metrics().visits }}</strong>
-        </article>
-        <article>
-            <p>{{ homeContent().metrics.labels.productViews }}</p>
-            <strong>{{ metrics().productViews }}</strong>
-        </article>
-        <article>
-            <p>{{ homeContent().metrics.labels.addsToCart }}</p>
-            <strong>{{ metrics().addsToCart }}</strong>
-        </article>
-        <article>
-            <p>{{ homeContent().metrics.labels.checkoutIntents }}</p>
-            <strong>{{ metrics().checkoutIntents }}</strong>
-        </article>
-        <article>
-            <p>{{ homeContent().metrics.labels.addToViewRate }}</p>
-            <strong>{{ addToViewRate().toFixed(1) }}%</strong>
-        </article>
-        <article>
-            <p>{{ homeContent().metrics.labels.checkoutRate }}</p>
-            <strong>{{ checkoutRate().toFixed(1) }}%</strong>
-        </article>
+    <div class="metrics-layout">
+        <div class="metrics-activity">
+            <p class="metrics-sub-label">Actividad en sesi&#243;n</p>
+            <div class="metrics-counters">
+                <article class="metrics-counter-card">
+                    <strong class="metrics-value">{{ metrics().visits }}</strong>
+                    <p class="metrics-name">{{ homeContent().metrics.labels.visits }}</p>
+                </article>
+                <article class="metrics-counter-card">
+                    <strong class="metrics-value">{{ metrics().productViews }}</strong>
+                    <p class="metrics-name">{{ homeContent().metrics.labels.productViews }}</p>
+                </article>
+                <article class="metrics-counter-card">
+                    <strong class="metrics-value">{{ metrics().addsToCart }}</strong>
+                    <p class="metrics-name">{{ homeContent().metrics.labels.addsToCart }}</p>
+                </article>
+                <article class="metrics-counter-card">
+                    <strong class="metrics-value">{{ metrics().checkoutIntents }}</strong>
+                    <p class="metrics-name">{{ homeContent().metrics.labels.checkoutIntents }}</p>
+                </article>
+            </div>
+        </div>
+
+        <div class="metrics-rates">
+            <p class="metrics-sub-label">Tasas de conversi&#243;n</p>
+            <div class="conversion-list">
+                <article class="conversion-item">
+                    <div class="conversion-header">
+                        <p class="conversion-label">{{ homeContent().metrics.labels.addToViewRate }}</p>
+                        <strong class="conversion-value"
+                            [class.rate-good]="addToViewRate() >= 15">{{ addToViewRate().toFixed(1) }}%</strong>
+                    </div>
+                    <div class="conversion-bar-track">
+                        <div class="conversion-bar" [style.width.%]="clampRate(addToViewRate())"></div>
+                    </div>
+                </article>
+                <article class="conversion-item">
+                    <div class="conversion-header">
+                        <p class="conversion-label">{{ homeContent().metrics.labels.checkoutRate }}</p>
+                        <strong class="conversion-value"
+                            [class.rate-good]="checkoutRate() >= 10">{{ checkoutRate().toFixed(1) }}%</strong>
+                    </div>
+                    <div class="conversion-bar-track">
+                        <div class="conversion-bar" [style.width.%]="clampRate(checkoutRate())"></div>
+                    </div>
+                </article>
+            </div>
+        </div>
     </div>
 </section>
