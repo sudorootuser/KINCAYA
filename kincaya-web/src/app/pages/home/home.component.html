@@ -52,6 +52,13 @@
     </div>
     }
   </div>
+
+  <a class="scroll-cue" href="#products" (click)="handleHeroActionClick($event, '#products')"
+    aria-label="Deslizar hasta el catalogo de productos">
+    <span class="scroll-cue-wave" aria-hidden="true"></span>
+    <span class="scroll-cue-text">Desliza para ver productos</span>
+    <span class="scroll-cue-arrow" aria-hidden="true">&#8595;</span>
+  </a>
 </section>
 
 <section class="trust-strip" aria-label="Prueba social">
@@ -205,7 +212,7 @@
   <p class="result-count">{{ filteredProducts().length }} {{ homeContent().catalog.resultSuffix }}</p>
 
   <div class="product-grid">
-    @for (product of filteredProducts(); track product.id) {
+    @for (product of visibleProducts(); track product.id) {
     <article class="product-card">
       @if (getBadge(product)) {
       <span class="badge">{{ getBadge(product) }}</span>
@@ -239,6 +246,23 @@
     </article>
     }
   </div>
+
+  @if (filteredProducts().length > 0 && totalProductPages() > 1) {
+  <nav class="catalog-pagination" aria-label="Paginacion de productos">
+    <button type="button" class="page-nav" [disabled]="currentPage() <= 1" (click)="prevPage()">Anterior</button>
+
+    <div class="page-list" role="list">
+      @for (page of pageRange(); track page) {
+      <button type="button" role="listitem" [class.active]="currentPage() === page" (click)="goToPage(page)">
+        {{ page }}
+      </button>
+      }
+    </div>
+
+    <button type="button" class="page-nav" [disabled]="currentPage() >= totalProductPages()"
+      (click)="nextPage()">Siguiente</button>
+  </nav>
+  }
 
   @if (filteredProducts().length === 0) {
   <article class="empty-results" aria-live="polite">

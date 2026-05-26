@@ -165,6 +165,22 @@ export class App {
     this.cartOpen.set(true);
   }
 
+  protected openAdvisorWhatsApp(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const message = [
+      '*Hola Kincaya*',
+      '',
+      'Quiero hablar con un asesor de ventas para recibir recomendacion de productos.',
+      'Gracias.',
+    ].join('\n');
+
+    const url = `https://wa.me/${this.phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
   protected closeCart(): void {
     this.cartOpen.set(false);
   }

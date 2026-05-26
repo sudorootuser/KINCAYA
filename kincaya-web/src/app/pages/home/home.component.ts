@@ -1,4 +1,12 @@
-import { afterNextRender, Component, computed, inject, OnDestroy, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  effect,
+  inject,
+  OnDestroy,
+  signal,
+} from '@angular/core';
 
 import { Product } from '../../models/product.model';
 import { CartService } from '../../services/cart.service';
@@ -17,11 +25,14 @@ type SortMode = 'relevance' | 'priceAsc' | 'priceDesc';
   styleUrl: './home.component.css',
 })
 export class HomeComponent implements OnDestroy {
+  private static readonly PAGE_SIZE = 8;
+
   protected readonly activeCategory = signal('Todos');
   protected readonly searchTerm = signal('');
   protected readonly activePriceBand = signal<PriceBand>('all');
   protected readonly onlyFeatured = signal(false);
   protected readonly sortMode = signal<SortMode>('relevance');
+  protected readonly currentPage = signal(1);
   protected readonly lastTrackedSearch = signal('');
   protected readonly recentlyAddedId = signal<number | null>(null);
   protected readonly fallbackImagePath = 'assets/placeholders/product-fallback.svg';
@@ -108,6 +119,13 @@ export class HomeComponent implements OnDestroy {
     this.catalogService.ensureLoaded();
     this.homeContentService.ensureLoaded();
     this.metricsService.trackVisit();
+
+    effect(() => {
+      const totalPages = this.totalProductPages();
+      if (this.currentPage() > totalPages) {
+        this.currentPage.set(totalPages);
+      }
+    });
 
     afterNextRender(() => {
       this.setupScrollReveal();
@@ -341,6 +359,21 @@ export class HomeComponent implements OnDestroy {
     return this.sortProducts(searched, sortMode);
   });
 
+  protected readonly totalProductPages = computed(() =>
+    Math.max(1, Math.ceil(this.filteredProducts().length / HomeComponent.PAGE_SIZE)),
+  );
+
+  protected readonly visibleProducts = computed(() => {
+    const page = Math.min(this.currentPage(), this.totalProductPages());
+    const start = (page - 1) * HomeComponent.PAGE_SIZE;
+    return this.filteredProducts().slice(start, start + HomeComponent.PAGE_SIZE);
+  });
+
+  protected readonly pageRange = computed(() => {
+    const total = this.totalProductPages();
+    return Array.from({ length: total }, (_, index) => index + 1);
+  });
+
   protected readonly quickSearchSuggestions = computed(() =>
     this.products()
       .map((product) => product.name)
@@ -355,6 +388,7 @@ export class HomeComponent implements OnDestroy {
 
   protected selectCategory(category: string): void {
     this.activeCategory.set(category);
+    this.currentPage.set(1);
     this.metricsService.trackFilterUse();
   }
 
@@ -367,6 +401,7 @@ export class HomeComponent implements OnDestroy {
 
   protected updateSearch(term: string): void {
     this.searchTerm.set(term);
+    this.currentPage.set(1);
 
     const normalized = term.trim().toLowerCase();
     if (normalized.length >= 3 && this.lastTrackedSearch() !== normalized) {
@@ -377,20 +412,24 @@ export class HomeComponent implements OnDestroy {
 
   protected clearSearch(): void {
     this.searchTerm.set('');
+    this.currentPage.set(1);
   }
 
   protected setPriceBand(priceBand: PriceBand): void {
     this.activePriceBand.set(priceBand);
+    this.currentPage.set(1);
     this.metricsService.trackFilterUse();
   }
 
   protected setSortMode(mode: SortMode): void {
     this.sortMode.set(mode);
+    this.currentPage.set(1);
     this.metricsService.trackFilterUse();
   }
 
   protected setFeaturedOnly(value: boolean): void {
     this.onlyFeatured.set(value);
+    this.currentPage.set(1);
     this.metricsService.trackFilterUse();
   }
 
@@ -398,6 +437,26 @@ export class HomeComponent implements OnDestroy {
     this.activePriceBand.set('all');
     this.onlyFeatured.set(false);
     this.sortMode.set('relevance');
+    this.currentPage.set(1);
+  }
+
+  protected goToPage(page: number): void {
+    const total = this.totalProductPages();
+    const nextPage = Math.max(1, Math.min(page, total));
+    this.currentPage.set(nextPage);
+
+    if (typeof window !== 'undefined') {
+      const target = window.document.getElementById('products');
+      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  protected prevPage(): void {
+    this.goToPage(this.currentPage() - 1);
+  }
+
+  protected nextPage(): void {
+    this.goToPage(this.currentPage() + 1);
   }
 
   protected applyImageFallback(event: Event): void {
@@ -418,6 +477,7 @@ export class HomeComponent implements OnDestroy {
 
   protected openCollection(category: string): void {
     this.activeCategory.set(category);
+    this.currentPage.set(1);
     this.metricsService.trackFilterUse();
 
     if (typeof window !== 'undefined') {
