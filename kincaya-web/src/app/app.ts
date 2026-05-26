@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { CartItem, Product } from './models/product.model';
 import { CartService } from './services/cart.service';
+import { InvoicePdfService, InvoiceSnapshot } from './services/invoice-pdf.service';
 import { ProductCatalogService } from './services/product-catalog.service';
 import { ProductViewerService } from './services/product-viewer.service';
 import { UxMetricsService } from './services/ux-metrics.service';
@@ -20,6 +21,7 @@ export class App {
   protected readonly phoneNumber = '573227405024';
   protected readonly logoWordmarkPath = 'assets/logos/LOGOS_Logo-tecno-full-color.svg';
   protected readonly fallbackImagePath = 'assets/placeholders/product-fallback.svg';
+  protected readonly invoicePublicBaseUrl = '';
 
   protected readonly cartOpen = signal(false);
   protected readonly cartPulse = signal(false);
@@ -37,6 +39,7 @@ export class App {
   private readonly viewer = inject(ProductViewerService);
   private readonly metricsService = inject(UxMetricsService);
   private readonly catalogService = inject(ProductCatalogService);
+  private readonly invoicePdfService = inject(InvoicePdfService);
 
   protected readonly products = this.catalogService.products;
 
@@ -182,23 +185,69 @@ export class App {
     Math.max(0, this.cartItems().length - this.clearCartPreview().length),
   );
 
-  protected sendToWhatsApp(): void {
+  protected async sendToWhatsApp(): Promise<void> {
     const items = this.cartItems();
     if (!items.length || typeof window === 'undefined') {
       return;
     }
 
-    const lines = items.map(
-      (item) =>
-        `- ${item.product.name} x${item.quantity} = $${(item.product.price * item.quantity).toFixed(2)}`,
-    );
+    const snapshot = this.createInvoiceSnapshot();
+    try {
+      await this.invoicePdfService.downloadTemporaryInvoice(snapshot);
+      this.showToast(`Factura temporal PDF descargada: ${snapshot.reference}`);
+    } catch {
+      this.showToast('No se pudo generar la factura PDF.');
+    }
+
+    const invoiceUrl = this.getInvoicePublicUrl(snapshot.reference);
+
+    const LINE = '---------------------';
+    const THICK = '=====================';
+
+    const productLines = snapshot.items.flatMap((item) => {
+      return [
+        `- *${item.name}*`,
+        `  ${item.quantity} unid. x $${item.unitPrice.toFixed(2)} = *$${item.total.toFixed(2)}*`,
+      ];
+    });
+
+    const shippingLine =
+      snapshot.shipping === 0
+        ? `  Envio:      *GRATIS*`
+        : `  Envio:      *$${snapshot.shipping.toFixed(2)}*`;
+
+    const invoiceLinkLines =
+      invoiceUrl === null
+        ? []
+        : [
+            '',
+            `URL factura: ${invoiceUrl}`,
+            '_Abre este enlace para revisar o compartir la factura._',
+          ];
 
     const message = [
-      'Hola Kincaya, quiero comprar estos productos:',
-      ...lines,
-      `Total: $${this.cartTotal().toFixed(2)}`,
-      '',
-      'Por favor confirmar disponibilidad y envio. Gracias.',
+      `*PEDIDO - KINCAYA*`,
+      THICK,
+      `Fecha:  ${snapshot.date}`,
+      `Ref:    #${snapshot.reference}`,
+      THICK,
+      ``,
+      `*PRODUCTOS SOLICITADOS*`,
+      LINE,
+      ...productLines,
+      LINE,
+      ``,
+      `*RESUMEN*`,
+      `  Subtotal:   *$${snapshot.subtotal.toFixed(2)}*`,
+      shippingLine,
+      `  ---------------------`,
+      `  TOTAL:      *$${snapshot.total.toFixed(2)}*`,
+      ``,
+      THICK,
+      `_Factura temporal PDF generada y descargada: factura-${snapshot.reference}.pdf_`,
+      `_Por favor confirmar disponibilidad y tiempo de envio._`,
+      `_Atencion personalizada en menos de 24 horas._`,
+      ...invoiceLinkLines,
     ].join('\n');
 
     const url = `https://wa.me/${this.phoneNumber}?text=${encodeURIComponent(message)}`;
@@ -428,5 +477,51 @@ export class App {
 
   private getFallbackImage(): string {
     return this.fallbackImagePath;
+  }
+
+  private createInvoiceSnapshot(): InvoiceSnapshot {
+    const now = new Date();
+    const date = now.toLocaleDateString('es-EC', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+    const reference = this.createOrderReference(now);
+    const shipping = this.shippingCost();
+    const subtotal = this.cartTotal();
+    const total = subtotal + shipping;
+
+    const items = this.cartItems().map((item) => ({
+      name: item.product.name,
+      quantity: item.quantity,
+      unitPrice: item.product.price,
+      total: item.product.price * item.quantity,
+    }));
+
+    return {
+      date,
+      reference,
+      items,
+      subtotal,
+      shipping,
+      total,
+    };
+  }
+
+  private createOrderReference(now: Date): string {
+    const yy = String(now.getFullYear()).slice(-2);
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const randomSuffix = String(Math.floor(100 + Math.random() * 900));
+    return `KC-${yy}${mm}${dd}-${randomSuffix}`;
+  }
+
+  private getInvoicePublicUrl(reference: string): string | null {
+    const base = this.invoicePublicBaseUrl.trim();
+    if (!base) {
+      return null;
+    }
+
+    return `${base.replace(/\/$/, '')}/${encodeURIComponent(reference)}.pdf`;
   }
 }

@@ -30,9 +30,13 @@ export class HomeComponent implements OnDestroy {
   protected readonly heroHighlightChanging = signal(false);
   protected readonly heroHighlightOutgoingText = signal<string | null>(null);
   protected readonly heroHighlightIncomingText = signal<string | null>(null);
+  protected readonly focusedSectionId = signal<string | null>(null);
   private testimonialTimer: ReturnType<typeof setInterval> | null = null;
   private heroHighlightTimer: ReturnType<typeof setInterval> | null = null;
   private heroHighlightSwapTimeout: ReturnType<typeof setTimeout> | null = null;
+  private hashNavigationTimeout: ReturnType<typeof setTimeout> | null = null;
+  private hashFocusTimeout: ReturnType<typeof setTimeout> | null = null;
+  private readonly handleHashChange = () => this.scrollToHashTarget(window.location.hash);
   private testimonialPaused = false;
 
   protected readonly priceBands = [
@@ -58,8 +62,16 @@ export class HomeComponent implements OnDestroy {
   protected readonly products = this.catalogService.products;
   protected readonly categories = this.catalogService.categories;
   protected readonly featuredProducts = this.catalogService.featuredProducts;
+  protected readonly featuredShowcaseProducts = computed(() => {
+    const featured = this.featuredProducts();
+    if (featured.length > 0) {
+      return featured;
+    }
+
+    return this.products().slice(0, 4);
+  });
   protected readonly offerProduct = computed(
-    () => this.featuredProducts()[0] ?? this.products()[0] ?? null,
+    () => this.featuredShowcaseProducts()[0] ?? this.products()[0] ?? null,
   );
   protected readonly totalTestimonials = computed(
     () => this.homeContent().testimonials.items.length,
@@ -101,6 +113,7 @@ export class HomeComponent implements OnDestroy {
       this.setupScrollReveal();
       this.startTestimonialAutoPlay();
       this.startHeroHighlightRotation();
+      this.setupHashNavigation();
     });
   }
 
@@ -115,6 +128,18 @@ export class HomeComponent implements OnDestroy {
 
     if (this.heroHighlightSwapTimeout !== null) {
       clearTimeout(this.heroHighlightSwapTimeout);
+    }
+
+    if (this.hashNavigationTimeout !== null) {
+      clearTimeout(this.hashNavigationTimeout);
+    }
+
+    if (this.hashFocusTimeout !== null) {
+      clearTimeout(this.hashFocusTimeout);
+    }
+
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('hashchange', this.handleHashChange);
     }
   }
 
@@ -147,6 +172,26 @@ export class HomeComponent implements OnDestroy {
 
   protected clampRate(rate: number): number {
     return Math.min(Math.max(rate, 0), 100);
+  }
+
+  protected handleHeroActionClick(event: MouseEvent, href: string): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const rawHref = (href ?? '').trim();
+    if (!rawHref.startsWith('#')) {
+      return;
+    }
+
+    event.preventDefault();
+
+    if (window.location.hash !== rawHref) {
+      window.location.hash = rawHref;
+      return;
+    }
+
+    this.scrollToHashTarget(rawHref);
   }
 
   private setupScrollReveal(): void {
@@ -202,6 +247,55 @@ export class HomeComponent implements OnDestroy {
         this.heroHighlightIncomingText.set(null);
       }, 420);
     }, 4300);
+  }
+
+  private setupHashNavigation(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    window.addEventListener('hashchange', this.handleHashChange);
+  }
+
+  private scrollToHashTarget(rawHash: string): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const hash = rawHash.trim();
+    if (!hash || hash.length <= 1) {
+      return;
+    }
+
+    const targetId = decodeURIComponent(hash.slice(1));
+
+    if (this.hashNavigationTimeout !== null) {
+      clearTimeout(this.hashNavigationTimeout);
+    }
+
+    this.hashNavigationTimeout = setTimeout(() => {
+      const target = window.document.getElementById(targetId);
+      if (!target) {
+        return;
+      }
+
+      target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+      this.highlightTargetSection(targetId);
+    }, 90);
+  }
+
+  private highlightTargetSection(targetId: string): void {
+    this.focusedSectionId.set(targetId);
+
+    if (this.hashFocusTimeout !== null) {
+      clearTimeout(this.hashFocusTimeout);
+    }
+
+    this.hashFocusTimeout = setTimeout(() => {
+      if (this.focusedSectionId() === targetId) {
+        this.focusedSectionId.set(null);
+      }
+    }, 1800);
   }
 
   protected readonly filteredProducts = computed(() => {

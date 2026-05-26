@@ -18,9 +18,11 @@
     </p>
 
     <div class="hero-actions">
-      <a class="btn-primary" [href]="homeContent().hero.primaryActionHref">{{
+      <a class="btn-primary" [href]="homeContent().hero.primaryActionHref"
+        (click)="handleHeroActionClick($event, homeContent().hero.primaryActionHref)">{{
         homeContent().hero.primaryActionLabel }}</a>
-      <a class="btn-outline" [href]="homeContent().hero.secondaryActionHref">{{
+      <a class="btn-outline" [href]="homeContent().hero.secondaryActionHref"
+        (click)="handleHeroActionClick($event, homeContent().hero.secondaryActionHref)">{{
         homeContent().hero.secondaryActionLabel }}</a>
     </div>
 
@@ -86,7 +88,7 @@
     <p>{{ homeContent().featured.sectionDescription }}</p>
   </div>
   <div class="featured-grid">
-    @for (product of featuredProducts(); track product.id) {
+    @for (product of featuredShowcaseProducts(); track product.id) {
     <article class="featured-card">
       <span class="badge">{{ getBadge(product) }}</span>
       <img [src]="product.images[0]" [alt]="product.name" loading="lazy" (click)="openProduct(product)"
@@ -108,7 +110,8 @@
   </div>
 </section>
 
-<section class="weekly-offer reveal" id="offer" aria-label="Oferta semanal">
+<section class="weekly-offer reveal" [class.anchor-focus]="focusedSectionId() === 'offer'" id="offer"
+  aria-label="Oferta semanal">
   <div class="offer-copy">
     <p class="offer-tag">{{ homeContent().offer.sectionTag }}</p>
     <h2>{{ homeContent().offer.sectionTitle }}</h2>

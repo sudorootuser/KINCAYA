@@ -433,6 +433,31 @@ h1 {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
   gap: 1rem;
+  scroll-margin-top: clamp(5.2rem, 10vh, 7rem);
+}
+
+.weekly-offer.anchor-focus {
+  animation: offer-target-focus 1800ms ease-out both;
+}
+
+@keyframes offer-target-focus {
+  0% {
+    transform: translateY(-2px) scale(0.998);
+    box-shadow: 0 0 0 0 rgb(59 155 198 / 0%), 0 8px 20px rgb(59 155 198 / 8%);
+    border-color: #9fcae1;
+  }
+
+  28% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 0 0 10px rgb(59 155 198 / 16%), 0 18px 38px rgb(59 155 198 / 20%);
+    border-color: #3b9bc6;
+  }
+
+  100% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 0 0 0 rgb(59 155 198 / 0%), 0 0 0 rgb(0 0 0 / 0%);
+    border-color: #cfe2ef;
+  }
 }
 
 .offer-tag {
