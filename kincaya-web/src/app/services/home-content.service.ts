@@ -1,7 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 
 import { HomeContent } from '../models/home-content.model';
+import { HOME_CONTENT_REPOSITORY } from '../repositories/home-content.repository';
 
 const DEFAULT_HOME_CONTENT: HomeContent = {
   hero: {
@@ -95,7 +95,7 @@ const DEFAULT_HOME_CONTENT: HomeContent = {
   providedIn: 'root',
 })
 export class HomeContentService {
-  private readonly http = inject(HttpClient);
+  private readonly repository = inject(HOME_CONTENT_REPOSITORY);
 
   private readonly contentState = signal<HomeContent>(DEFAULT_HOME_CONTENT);
   private readonly loadedState = signal(false);
@@ -114,7 +114,7 @@ export class HomeContentService {
     }
 
     this.loadingState.set(true);
-    this.http.get<HomeContent>('assets/data/home.json').subscribe({
+    this.repository.getHomeContent().subscribe({
       next: (response) => {
         this.contentState.set({ ...DEFAULT_HOME_CONTENT, ...response });
         this.loadedState.set(true);

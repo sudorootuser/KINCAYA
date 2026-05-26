@@ -1,17 +1,13 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 
 import { Product } from '../models/product.model';
-
-interface ProductCatalogResponse {
-  products: Product[];
-}
+import { PRODUCT_REPOSITORY } from '../repositories/product.repository';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductCatalogService {
-  private readonly http = inject(HttpClient);
+  private readonly repository = inject(PRODUCT_REPOSITORY);
 
   private readonly productsState = signal<Product[]>([]);
   private readonly loadedState = signal(false);
@@ -37,9 +33,9 @@ export class ProductCatalogService {
     }
 
     this.loadingState.set(true);
-    this.http.get<ProductCatalogResponse>('assets/data/products.json').subscribe({
-      next: (response) => {
-        const normalized = Array.isArray(response?.products) ? response.products : [];
+    this.repository.getProducts().subscribe({
+      next: (products) => {
+        const normalized = Array.isArray(products) ? products : [];
         this.productsState.set(normalized);
         this.loadedState.set(true);
         this.loadingState.set(false);
