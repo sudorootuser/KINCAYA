@@ -1,3 +1,4 @@
+@if (!isAdminRoute()) {
 <div class="site-shell">
   <header class="topbar">
     <a class="brand" routerLink="/">
@@ -273,3 +274,6 @@
   </div>
   }
 </div>
+} @else {
+<router-outlet />
+}

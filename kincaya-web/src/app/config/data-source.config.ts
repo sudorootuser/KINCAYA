@@ -1,3 +1,5 @@
+import { environment } from '../../environments/environment';
+
 export type DataSourceMode = 'local-json' | 'api-http';
 
 export interface DataSourceConfig {
@@ -11,35 +13,43 @@ export interface DataSourceConfig {
   requestTimeoutMs: number;
 }
 
-// Recommended configuration for local development using JSON files.
-const DEV_LOCAL_JSON_CONFIG: DataSourceConfig = {
-  mode: 'local-json',
-  apiBaseUrl: 'http://localhost:3000/api',
+function hasRealApiBaseUrl(url: string): boolean {
+  const value = (url ?? '').trim();
+  if (!value) {
+    return false;
+  }
+
+  const looksLikePlaceholder =
+    value.includes('tu-dominio.com') ||
+    value.includes('REEMPLAZAR') ||
+    value.includes('example.com');
+  if (looksLikePlaceholder) {
+    return false;
+  }
+
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+const requestedMode = environment.publicDataSource.mode as DataSourceMode;
+const shouldUseApiHttp =
+  requestedMode === 'api-http' && hasRealApiBaseUrl(environment.publicDataSource.apiBaseUrl);
+
+if (requestedMode === 'api-http' && !shouldUseApiHttp) {
+  console.warn('[DataSource] API no configurada. Se usa local JSON automaticamente.');
+}
+
+export const DATA_SOURCE_CONFIG: DataSourceConfig = {
+  mode: shouldUseApiHttp ? 'api-http' : 'local-json',
+  apiBaseUrl: shouldUseApiHttp ? environment.publicDataSource.apiBaseUrl : '',
   endpoints: {
-    products: '/products',
-    homeContent: '/home-content',
-    testimonials: '/testimonials',
+    products: environment.publicDataSource.endpoints.products,
+    homeContent: environment.publicDataSource.endpoints.homeContent,
+    testimonials: environment.publicDataSource.endpoints.testimonials,
   },
-  requestTimeoutMs: 8000,
+  requestTimeoutMs: environment.publicDataSource.requestTimeoutMs,
 };
-
-// Commented example for production (real API).
-// 1) Replace `apiBaseUrl` and endpoints with real values.
-// 2) Comment out the development export line.
-// 3) Uncomment the production export line.
-const PROD_API_HTTP_CONFIG: DataSourceConfig = {
-  mode: 'api-http',
-  apiBaseUrl: 'https://api.tu-dominio.com/v1',
-  endpoints: {
-    products: '/catalog/products',
-    homeContent: '/content/home',
-    testimonials: '/content/testimonials',
-  },
-  requestTimeoutMs: 10000,
-};
-
-// Development (active by default)
-export const DATA_SOURCE_CONFIG: DataSourceConfig = DEV_LOCAL_JSON_CONFIG;
-
-// Production (uncomment when deploying)
-// export const DATA_SOURCE_CONFIG: DataSourceConfig = PROD_API_HTTP_CONFIG;

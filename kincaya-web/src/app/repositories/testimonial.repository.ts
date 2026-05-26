@@ -4,6 +4,7 @@ import { Observable, map, timeout } from 'rxjs';
 
 import { DATA_SOURCE_CONFIG, DataSourceConfig } from '../config/data-source.config';
 import { Testimonial } from '../models/testimonial.model';
+import { environment } from '../../environments/environment';
 
 interface TestimonialResponse {
   testimonials?: Testimonial[];
@@ -58,7 +59,7 @@ function buildSafeApiUrl(baseUrl: string, endpoint: string): string {
 }
 
 function sanitizeBaseUrl(baseUrl: string): string {
-  const fallback = 'http://localhost:3000/api';
+  const fallback = environment.publicDataSource.apiBaseUrl || 'http://localhost:3000/api';
 
   try {
     const parsed = new URL(baseUrl);

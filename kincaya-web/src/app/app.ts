@@ -1,9 +1,11 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 import { CartItem, Product } from './models/product.model';
 import { CartService } from './services/cart.service';
 import { InvoicePdfService, InvoiceSnapshot } from './services/invoice-pdf.service';
+import { LeadService } from './services/lead.service';
 import { OrderHistoryService } from './services/order-history.service';
 import { ProductCatalogService } from './services/product-catalog.service';
 import { ProductViewerService } from './services/product-viewer.service';
@@ -33,6 +35,8 @@ export class App {
   protected readonly cartSuggestionStartIndex = signal(0);
   protected readonly addToastVisible = signal(false);
   protected readonly addToastMessage = signal('');
+  protected readonly currentUrl = signal('');
+  protected readonly isAdminRoute = computed(() => this.currentUrl().startsWith('/admin'));
 
   private addToastTimeoutId?: ReturnType<typeof setTimeout>;
 
@@ -42,6 +46,8 @@ export class App {
   private readonly catalogService = inject(ProductCatalogService);
   private readonly invoicePdfService = inject(InvoicePdfService);
   private readonly orderHistoryService = inject(OrderHistoryService);
+  private readonly leadService = inject(LeadService);
+  private readonly router = inject(Router);
 
   protected readonly products = this.catalogService.products;
 
@@ -87,6 +93,11 @@ export class App {
 
   constructor() {
     this.catalogService.ensureLoaded();
+    this.currentUrl.set(this.router.url);
+
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event) => this.currentUrl.set(event.urlAfterRedirects));
 
     effect(() => {
       const tick = this.cartService.addTick();
@@ -172,6 +183,13 @@ export class App {
       return;
     }
 
+    const productsInCart = this.cartItems().map((item) => ({
+      nombre: item.product.name,
+      cantidad: item.quantity,
+    }));
+
+    this.leadService.trackQuoteRequest(productsInCart);
+
     const message = [
       '*Hola Kincaya*',
       '',
@@ -211,13 +229,22 @@ export class App {
 
     const snapshot = this.createInvoiceSnapshot();
     this.orderHistoryService.add(snapshot);
+    let pdfGenerated = false;
 
     try {
       await this.invoicePdfService.downloadTemporaryInvoice(snapshot);
+      pdfGenerated = true;
       this.showToast(`Factura temporal PDF descargada: ${snapshot.reference}`);
     } catch {
       this.showToast('No se pudo generar la factura PDF.');
     }
+
+    const lead = this.leadService.captureCheckoutLead({
+      snapshot,
+      origen: 'checkout_whatsapp',
+      pdfGenerated,
+      whatsappOpened: false,
+    });
 
     const invoiceUrl = this.getInvoicePublicUrl(snapshot.reference);
 
@@ -273,6 +300,7 @@ export class App {
     const url = `https://wa.me/${this.phoneNumber}?text=${encodeURIComponent(message)}`;
     this.metricsService.trackCheckoutIntent();
     window.open(url, '_blank', 'noopener,noreferrer');
+    this.leadService.markWhatsappOpened(lead.id);
 
     this.cartService.clear();
     this.cartOpen.set(false);
@@ -365,6 +393,7 @@ export class App {
   }
 
   protected openProductFromCart(item: CartItem): void {
+    this.leadService.trackProductConsultation(item.product);
     this.viewer.openById(item.product.id);
   }
 
