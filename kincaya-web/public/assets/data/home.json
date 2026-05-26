@@ -105,27 +105,7 @@
   },
   "testimonials": {
     "sectionTitle": "Lo que dicen nuestros clientes",
-    "sectionDescription": "Experiencias reales de compra con asesoria personalizada.",
-    "items": [
-      {
-        "name": "Andrea M.",
-        "role": "Cliente recurrente",
-        "quote": "Compre en la manana y el mismo dia me asesoraron por WhatsApp. Super claro todo.",
-        "score": "5.0"
-      },
-      {
-        "name": "Luis R.",
-        "role": "Emprendedor",
-        "quote": "La experiencia es rapida y sin complicaciones. Me ayudaron a elegir justo lo que necesitaba.",
-        "score": "4.9"
-      },
-      {
-        "name": "Carla P.",
-        "role": "Diseño y marketing",
-        "quote": "Buen catalogo, buena atencion y seguimiento real despues de la compra.",
-        "score": "5.0"
-      }
-    ]
+    "sectionDescription": "Experiencias reales de compra con asesoria personalizada."
   },
   "metrics": {
     "sectionTitle": "Panel de conversion",

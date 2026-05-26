@@ -6,6 +6,7 @@ export interface DataSourceConfig {
   endpoints: {
     products: string;
     homeContent: string;
+    testimonials: string;
   };
   requestTimeoutMs: number;
 }
@@ -17,6 +18,7 @@ const DEV_LOCAL_JSON_CONFIG: DataSourceConfig = {
   endpoints: {
     products: '/products',
     homeContent: '/home-content',
+    testimonials: '/testimonials',
   },
   requestTimeoutMs: 8000,
 };
@@ -31,6 +33,7 @@ const PROD_API_HTTP_CONFIG: DataSourceConfig = {
   endpoints: {
     products: '/catalog/products',
     homeContent: '/content/home',
+    testimonials: '/content/testimonials',
   },
   requestTimeoutMs: 10000,
 };
