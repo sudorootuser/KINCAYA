@@ -5,6 +5,8 @@ export interface AdminProduct {
   categoria: string;
   precio: number;
   imagen: string;
+  imagenes: string[];
+  descuento: number;
   stock: number;
   activo: boolean;
   eliminado: boolean;

@@ -82,9 +82,26 @@ export class ProductService {
     this.update(id, { eliminado: true, activo: false });
   }
 
+  applyBulkDiscount(ids: string[], discountPercent: number): void {
+    const safe = Math.min(100, Math.max(0, Number(discountPercent) || 0));
+    const next = this.productsSubject.value.map((product) => {
+      if (!ids.includes(product.id)) {
+        return product;
+      }
+      return { ...product, descuento: safe };
+    });
+    this.productsSubject.next(next);
+    this.persist(next);
+    this.transport.enqueue('product.bulkDiscount', { ids, discountPercent: safe });
+  }
+
   private toProduct(input: Partial<AdminProduct>): AdminProduct {
     const nombre = String(input.nombre ?? '').trim();
     const categoria = String(input.categoria ?? '').trim();
+    const imagen = String(input.imagen ?? '').trim() || 'assets/placeholders/product-fallback.svg';
+    const imagenes = Array.isArray(input.imagenes) && input.imagenes.length > 0
+      ? input.imagenes.filter((url) => url?.trim())
+      : [imagen];
 
     return {
       id: input.id?.trim() || `prod-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
@@ -92,7 +109,9 @@ export class ProductService {
       descripcion: String(input.descripcion ?? '').trim() || 'Sin descripcion',
       categoria: categoria || 'General',
       precio: this.toSafePrice(Number(input.precio)),
-      imagen: String(input.imagen ?? '').trim() || 'assets/placeholders/product-fallback.svg',
+      imagen,
+      imagenes,
+      descuento: this.toSafeDiscount(Number(input.descuento)),
       stock: this.toSafeStock(Number(input.stock)),
       activo: input.activo ?? true,
       eliminado: input.eliminado ?? false,
@@ -111,6 +130,8 @@ export class ProductService {
         patch.categoria === undefined ? undefined : String(patch.categoria).trim() || 'General',
       descripcion: patch.descripcion === undefined ? undefined : String(patch.descripcion).trim(),
       imagen: patch.imagen === undefined ? undefined : String(patch.imagen).trim(),
+      descuento: patch.descuento === undefined ? undefined : this.toSafeDiscount(Number(patch.descuento)),
+      imagenes: patch.imagenes === undefined ? undefined : patch.imagenes.filter((url) => url?.trim()),
     };
   }
 
@@ -122,19 +143,30 @@ export class ProductService {
     price: number;
     stock?: number;
     images: string[];
+    discountPercent?: number;
   }): AdminProduct {
+    const imagen = product.images?.[0] ?? 'assets/placeholders/product-fallback.svg';
     return {
       id: `legacy-${product.id}`,
       nombre: product.name,
       descripcion: product.description,
       categoria: product.category,
       precio: this.toSafePrice(product.price),
-      imagen: product.images?.[0] ?? 'assets/placeholders/product-fallback.svg',
+      imagen,
+      imagenes: product.images?.length ? [...product.images] : [imagen],
+      descuento: this.toSafeDiscount(product.discountPercent ?? 0),
       stock: this.toSafeStock(product.stock ?? 0),
       activo: true,
       eliminado: false,
       fechaCreacionIso: new Date().toISOString(),
     };
+  }
+
+  private toSafeDiscount(value: number): number {
+    if (!Number.isFinite(value)) {
+      return 0;
+    }
+    return Math.min(100, Math.max(0, Math.floor(value)));
   }
 
   private toSafePrice(value: number): number {

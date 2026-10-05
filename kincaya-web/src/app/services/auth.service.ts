@@ -6,6 +6,8 @@ import { DataTransportService } from '../core/transport/data-transport.service';
 import { AdminUser } from '../interfaces/user.interface';
 
 const SESSION_STORAGE_KEY = 'kincaya_admin_session_v1';
+const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
+
 const SIMULATED_CREDENTIALS = {
   email: 'admin@kincaya.com',
   password: 'Admin123*',
@@ -80,8 +82,15 @@ export class AuthService {
     }
 
     try {
-      const parsed = JSON.parse(raw) as AdminUser;
+      const envelope = JSON.parse(raw) as { user?: AdminUser; createdAt?: number };
+      const parsed = envelope?.user;
+
       if (!parsed?.uid || !parsed?.email) {
+        return null;
+      }
+
+      if (envelope.createdAt && Date.now() - envelope.createdAt > SESSION_TTL_MS) {
+        window.localStorage.removeItem(SESSION_STORAGE_KEY);
         return null;
       }
 
@@ -101,6 +110,11 @@ export class AuthService {
       return;
     }
 
-    window.localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(user));
+    const envelope = {
+      user,
+      createdAt: Date.now(),
+    };
+
+    window.localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(envelope));
   }
 }

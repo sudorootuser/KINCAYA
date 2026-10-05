@@ -9,6 +9,8 @@ import { LeadService } from './services/lead.service';
 import { OrderHistoryService } from './services/order-history.service';
 import { ProductCatalogService } from './services/product-catalog.service';
 import { ProductViewerService } from './services/product-viewer.service';
+import { SeoService } from './services/seo.service';
+import { StoreSettingsService } from './services/store-settings.service';
 import { UxMetricsService } from './services/ux-metrics.service';
 
 @Component({
@@ -25,11 +27,13 @@ export class App {
   protected readonly logoWordmarkPath = 'assets/logos/LOGOS_Logo-tecno-full-color.svg';
   protected readonly fallbackImagePath = 'assets/placeholders/product-fallback.svg';
   protected readonly invoicePublicBaseUrl = '';
+  protected readonly currentYear = new Date().getFullYear();
 
   protected readonly cartOpen = signal(false);
   protected readonly cartPulse = signal(false);
   protected readonly cartSummaryExpanded = signal(false);
   protected readonly cartClearConfirmOpen = signal(false);
+  protected readonly checkoutConfirmOpen = signal(false);
   protected readonly relatedSuggestionsModalOpen = signal(false);
   protected readonly relatedSuggestionIndex = signal(0);
   protected readonly cartSuggestionStartIndex = signal(0);
@@ -46,8 +50,11 @@ export class App {
   private readonly catalogService = inject(ProductCatalogService);
   private readonly invoicePdfService = inject(InvoicePdfService);
   private readonly orderHistoryService = inject(OrderHistoryService);
+  protected readonly hasOrderHistory = computed(() => this.orderHistoryService.entries().length > 0);
   private readonly leadService = inject(LeadService);
   private readonly router = inject(Router);
+  private readonly seoService = inject(SeoService);
+  private readonly storeSettings = inject(StoreSettingsService);
 
   protected readonly products = this.catalogService.products;
 
@@ -97,7 +104,10 @@ export class App {
 
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
-      .subscribe((event) => this.currentUrl.set(event.urlAfterRedirects));
+      .subscribe((event) => {
+        this.currentUrl.set(event.urlAfterRedirects);
+        this.updateSeoForRoute(event.urlAfterRedirects);
+      });
 
     effect(() => {
       const tick = this.cartService.addTick();
@@ -198,7 +208,34 @@ export class App {
     ].join('\n');
 
     const url = `https://wa.me/${this.phoneNumber}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
+    window.open(url, '_blank', 'noopener;noreferrer');
+  }
+
+  private updateSeoForRoute(url: string): void {
+    if (url.includes('/nosotros')) {
+      this.seoService.updatePage(
+        'Sobre nosotros',
+        'Conoce Kincaya Technology: tecnologia seleccionada con asesoria real para hogar, oficina y negocio.',
+      );
+    } else if (url.includes('/historial')) {
+      this.seoService.updatePage(
+        'Mis pedidos',
+        'Consulta tus pedidos confirmados, descarga facturas PDF y reenvia pedidos por WhatsApp.',
+      );
+    } else if (url === '/' || url === '') {
+      this.seoService.resetDefault();
+    }
+  }
+
+  protected scrollToOffer(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    setTimeout(() => {
+      const target = window.document.getElementById('offer');
+      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   }
 
   protected closeCart(): void {
@@ -221,7 +258,20 @@ export class App {
     Math.max(0, this.cartItems().length - this.clearCartPreview().length),
   );
 
-  protected async sendToWhatsApp(): Promise<void> {
+  protected openCheckoutConfirm(): void {
+    this.checkoutConfirmOpen.set(true);
+  }
+
+  protected closeCheckoutConfirm(): void {
+    this.checkoutConfirmOpen.set(false);
+  }
+
+  protected confirmCheckout(downloadPdf: boolean): void {
+    this.checkoutConfirmOpen.set(false);
+    this.sendToWhatsApp(downloadPdf);
+  }
+
+  protected async sendToWhatsApp(downloadPdf = true): Promise<void> {
     const items = this.cartItems();
     if (!items.length || typeof window === 'undefined') {
       return;
@@ -231,12 +281,14 @@ export class App {
     this.orderHistoryService.add(snapshot);
     let pdfGenerated = false;
 
-    try {
-      await this.invoicePdfService.downloadTemporaryInvoice(snapshot);
-      pdfGenerated = true;
-      this.showToast(`Factura temporal PDF descargada: ${snapshot.reference}`);
-    } catch {
-      this.showToast('No se pudo generar la factura PDF.');
+    if (downloadPdf) {
+      try {
+        await this.invoicePdfService.downloadTemporaryInvoice(snapshot, 'cotizacion');
+        pdfGenerated = true;
+        this.showToast(`Cotizacion descargada: ${snapshot.reference}`);
+      } catch {
+        this.showToast('No se pudo generar el PDF.');
+      }
     }
 
     const lead = this.leadService.captureCheckoutLead({
@@ -254,14 +306,9 @@ export class App {
     const productLines = snapshot.items.flatMap((item) => {
       return [
         `- *${item.name}*`,
-        `  ${item.quantity} unid. x $${item.unitPrice.toFixed(2)} = *$${item.total.toFixed(2)}*`,
+        `  ${item.quantity} unid. x ${this.formatPrice(item.unitPrice)} = *${this.formatPrice(item.total)}*`,
       ];
     });
-
-    const shippingLine =
-      snapshot.shipping === 0
-        ? `  Envio:      *GRATIS*`
-        : `  Envio:      *$${snapshot.shipping.toFixed(2)}*`;
 
     const invoiceLinkLines =
       invoiceUrl === null
@@ -271,6 +318,10 @@ export class App {
             `URL factura: ${invoiceUrl}`,
             '_Abre este enlace para revisar o compartir la factura._',
           ];
+
+    const pdfLine = downloadPdf
+      ? `_Cotizacion PDF: cotizacion-${snapshot.reference}.pdf_`
+      : '';
 
     const message = [
       `*PEDIDO - KINCAYA*`,
@@ -285,13 +336,13 @@ export class App {
       LINE,
       ``,
       `*RESUMEN*`,
-      `  Subtotal:   *$${snapshot.subtotal.toFixed(2)}*`,
-      shippingLine,
+      `  Subtotal:   *${this.formatPrice(snapshot.subtotal)}*`,
+      `  Envio:      ${snapshot.shipping === 0 ? '*GRATIS*' : this.formatPrice(snapshot.shipping)}`,
       `  ---------------------`,
-      `  TOTAL:      *$${snapshot.total.toFixed(2)}*`,
+      `  TOTAL:      *${this.formatPrice(snapshot.total)}*`,
       ``,
       THICK,
-      `_Factura temporal PDF generada y descargada: factura-${snapshot.reference}.pdf_`,
+      pdfLine,
       `_Por favor confirmar disponibilidad y tiempo de envio._`,
       `_Atencion personalizada en menos de 24 horas._`,
       ...invoiceLinkLines,
@@ -385,11 +436,11 @@ export class App {
 
   protected freeShippingHint(): string {
     const total = this.cartTotal();
-    if (total >= 150) {
+    if (total >= 500000) {
       return 'Envio gratis activado';
     }
 
-    return `Te faltan ${this.formatPrice(150 - total)} para envio gratis`;
+    return `Te faltan ${this.formatPrice(500000 - total)} para envio gratis`;
   }
 
   protected openProductFromCart(item: CartItem): void {
@@ -414,10 +465,7 @@ export class App {
   }
 
   protected formatPrice(price: number): string {
-    return new Intl.NumberFormat('es-EC', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(price);
+    return this.storeSettings.formatPrice(price);
   }
 
   protected applyImageFallback(event: Event): void {

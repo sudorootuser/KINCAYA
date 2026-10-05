@@ -18,6 +18,7 @@ import { AuthService } from '../../services/auth.service';
           <a routerLink="/admin/leads" routerLinkActive="active">Leads</a>
           <a routerLink="/admin/products" routerLinkActive="active">Productos</a>
           <a routerLink="/admin/analytics" routerLinkActive="active">Analytics</a>
+          <a routerLink="/admin/settings" routerLinkActive="active">Configuracion</a>
         </nav>
 
         <button type="button" class="logout" (click)="logout()">Cerrar sesion</button>

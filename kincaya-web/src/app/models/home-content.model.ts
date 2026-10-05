@@ -119,4 +119,18 @@ export interface HomeContent {
     offer: string;
     new: string;
   };
+  footer: {
+    tagline: string;
+    whatsappLabel: string;
+    tiendaTitle: string;
+    catalogLink: string;
+    offerLink: string;
+    aboutLink: string;
+    ayudaTitle: string;
+    historyLink: string;
+    supportLink: string;
+    garantiasTitle: string;
+    garantees: string[];
+    rights: string;
+  };
 }

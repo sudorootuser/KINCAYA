@@ -43,6 +43,13 @@ export const ADMIN_ROUTES: Routes = [
             (m) => m.AdminAnalyticsComponent,
           ),
       },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./pages/settings/admin-settings.component').then(
+            (m) => m.AdminSettingsComponent,
+          ),
+      },
     ],
   },
   {

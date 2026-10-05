@@ -13,12 +13,12 @@ import { AuthService } from '../../../services/auth.service';
     <section class="login-page">
       <article class="login-card">
         <h1>Acceso administrativo</h1>
-        <p>Modo simulado activo. Usuario: admin@kincaya.com / Admin123*</p>
+        <p>Ingresa tus credenciales para continuar.</p>
 
         <form [formGroup]="form" (ngSubmit)="submit()">
           <label>
             Correo
-            <input type="email" formControlName="email" placeholder="admin@kincaya.com" />
+            <input type="email" formControlName="email" placeholder="correo@ejemplo.com" autocomplete="username" />
           </label>
 
           <label>
@@ -113,8 +113,8 @@ export class AdminLoginComponent {
   readonly error = signal('');
 
   readonly form = this.fb.nonNullable.group({
-    email: ['admin@kincaya.com', [Validators.required, Validators.email]],
-    password: ['Admin123*', [Validators.required, Validators.minLength(6)]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
   submit(): void {

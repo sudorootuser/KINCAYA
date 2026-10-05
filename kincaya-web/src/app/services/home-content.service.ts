@@ -29,12 +29,12 @@ const DEFAULT_HOME_CONTENT: HomeContent = {
     ],
   },
   trust: {
-    ariaLabel: 'Prueba social',
+    ariaLabel: 'Garantias Kincaya',
     stats: [
-      { value: '+850', label: 'pedidos completados' },
-      { value: '98%', label: 'satisfaccion de clientes' },
-      { value: '100%', label: 'acompanamiento por WhatsApp' },
-      { value: '7 dias', label: 'garantia de cambio' },
+      { value: 'Envio', label: 'a todo Colombia' },
+      { value: 'Pago', label: 'seguro y flexible' },
+      { value: 'Asesoria', label: 'tecnica 1 a 1' },
+      { value: 'Garantia', label: 'directa con fabricante' },
     ],
   },
   collections: {
@@ -114,9 +114,28 @@ const DEFAULT_HOME_CONTENT: HomeContent = {
     },
   },
   badges: {
-    topSales: 'Top ventas',
+    topSales: 'Mas vendido',
     offer: 'Oferta',
     new: 'Nuevo',
+  },
+  footer: {
+    tagline: 'Tecnologia seleccionada con asesoria real. Compra facil, entrega rapida y soporte directo por WhatsApp.',
+    whatsappLabel: 'Hablar con un asesor',
+    tiendaTitle: 'Tienda',
+    catalogLink: 'Catalogo',
+    offerLink: 'Oferta semanal',
+    aboutLink: 'Sobre nosotros',
+    ayudaTitle: 'Ayuda',
+    historyLink: 'Mis pedidos',
+    supportLink: 'Soporte por WhatsApp',
+    garantiasTitle: 'Nuestras garantias',
+    garantees: [
+      'Pago contra entrega o transferencia',
+      'Garantia directa con fabricante',
+      'Devolucion si el producto no cumple',
+      'Asesoria tecnica antes y despues de comprar',
+    ],
+    rights: 'Todos los derechos reservados.',
   },
 };
 

@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 
 import { InvoiceSnapshot, InvoicePdfService } from '../../services/invoice-pdf.service';
 import { OrderHistoryEntry, OrderHistoryService } from '../../services/order-history.service';
+import { StoreSettingsService } from '../../services/store-settings.service';
 
 @Component({
   selector: 'app-history',
@@ -16,20 +17,18 @@ export class HistoryComponent {
 
   private readonly historyService = inject(OrderHistoryService);
   private readonly invoicePdfService = inject(InvoicePdfService);
+  private readonly storeSettings = inject(StoreSettingsService);
 
   protected readonly entries = this.historyService.entries;
   protected readonly hasEntries = computed(() => this.entries().length > 0);
 
   protected formatPrice(price: number): string {
-    return new Intl.NumberFormat('es-EC', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(price);
+    return this.storeSettings.formatPrice(price);
   }
 
   protected formatDate(createdAtIso: string): string {
     const date = new Date(createdAtIso);
-    return date.toLocaleString('es-EC', {
+    return date.toLocaleString('es-CO', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',

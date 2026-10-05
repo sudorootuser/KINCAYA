@@ -1,7 +1,7 @@
 <section class="hero" id="hero">
   <div class="hero-content">
-    <p class="tag">{{ homeContent().hero.tag }}</p>
-    <h1>
+    <p class="tag hero-stagger" style="--stagger: 0">{{ homeContent().hero.tag }}</p>
+    <h1 class="hero-stagger" style="--stagger: 1">
       {{ homeContent().hero.titleLead }}
       <span class="hero-rotating-highlight" [class.is-changing]="heroHighlightChanging()">
         <span class="hero-rotating-highlight-sizer" aria-hidden="true">{{ heroHighlightSizerText() }}</span>
@@ -13,11 +13,11 @@
         }
       </span>
     </h1>
-    <p class="hero-copy">
+    <p class="hero-copy hero-stagger" style="--stagger: 2">
       {{ homeContent().hero.description }}
     </p>
 
-    <div class="hero-actions">
+    <div class="hero-actions hero-stagger" style="--stagger: 3">
       <a class="btn-primary" [href]="homeContent().hero.primaryActionHref"
         (click)="handleHeroActionClick($event, homeContent().hero.primaryActionHref)">{{
         homeContent().hero.primaryActionLabel }}</a>
@@ -26,7 +26,7 @@
         homeContent().hero.secondaryActionLabel }}</a>
     </div>
 
-    <div class="hero-kpis" [attr.aria-label]="homeContent().hero.kpisAriaLabel">
+    <div class="hero-kpis hero-stagger" style="--stagger: 4" [attr.aria-label]="homeContent().hero.kpisAriaLabel">
       @for (kpi of homeContent().hero.kpis; track kpi.value + kpi.label) {
       <article>
         <strong>{{ kpi.value }}</strong>
@@ -36,25 +36,35 @@
     </div>
   </div>
 
-  <div class="hero-visual" aria-hidden="true">
-    <div class="glow"></div>
-    <img class="hero-logo" src="assets/logos/LOGOS_bolsa-color.svg" alt="" width="256" height="256" fetchpriority="high"
-      decoding="async" (error)="applyImageFallback($event)" />
+  <div class="hero-visual hero-stagger-visual">
+    <div class="hero-glow"></div>
+    <div class="hero-product-frame">
+      @for (img of heroImages; track img; let i = $index) {
+      <img class="hero-product-img" [class.hero-img-active]="heroImageIndex() === i"
+        [src]="img" alt="" loading="eager" width="800" height="800" decoding="async" />
+      }
+    </div>
     @if (homeContent().hero.floatingCards.length > 0) {
-    <div class="floating-card first">
-      <p>{{ homeContent().hero.floatingCards[0].label }}</p>
-      <strong>{{ homeContent().hero.floatingCards[0].value }}</strong>
+    <div class="hero-badge first">
+      <span class="hero-badge-dot"></span>
+      <div>
+        <p>{{ homeContent().hero.floatingCards[0].label }}</p>
+        <strong>{{ homeContent().hero.floatingCards[0].value }}</strong>
+      </div>
     </div>
     }
     @if (homeContent().hero.floatingCards.length > 1) {
-    <div class="floating-card second">
-      <p>{{ homeContent().hero.floatingCards[1].label }}</p>
-      <strong>{{ homeContent().hero.floatingCards[1].value }}</strong>
+    <div class="hero-badge second">
+      <span class="hero-badge-dot"></span>
+      <div>
+        <p>{{ homeContent().hero.floatingCards[1].label }}</p>
+        <strong>{{ homeContent().hero.floatingCards[1].value }}</strong>
+      </div>
     </div>
     }
   </div>
 
-  <a class="scroll-cue" href="#products" (click)="handleHeroActionClick($event, '#products')"
+  <a class="scroll-cue hero-stagger" style="--stagger: 5" href="#products" (click)="handleHeroActionClick($event, '#products')"
     [attr.aria-label]="homeContent().hero.scrollCueAriaLabel">
     <span class="scroll-cue-wave" aria-hidden="true"></span>
     <span class="scroll-cue-text">{{ homeContent().hero.scrollCueText }}</span>
@@ -71,146 +81,78 @@
   }
 </section>
 
-<section class="collections reveal" [attr.aria-label]="homeContent().collections.ariaLabel">
-  <div class="section-head">
-    <h2>{{ homeContent().collections.sectionTitle }}</h2>
-    <p>{{ homeContent().collections.sectionDescription }}</p>
-  </div>
-  <div class="collection-grid">
-    @for (collection of homeContent().collections.items; track collection.title) {
-    <article class="collection-card">
-      <img [src]="collection.image" [alt]="collection.title" loading="lazy" width="1200" height="800" decoding="async"
-        (error)="applyImageFallback($event)" />
-      <div>
-        <h3>{{ collection.title }}</h3>
-        <p>{{ collection.description }}</p>
-        <button type="button" (click)="openCollection(collection.category)">{{ homeContent().collections.exploreLabel
-          }}</button>
-      </div>
-    </article>
-    }
-  </div>
-</section>
-
-<section class="featured reveal">
-  <div class="section-head">
-    <h2>{{ homeContent().featured.sectionTitle }}</h2>
-    <p>{{ homeContent().featured.sectionDescription }}</p>
-  </div>
-  <div class="featured-grid">
-    @for (product of featuredShowcaseProducts(); track product.id) {
-    <article class="featured-card">
-      <span class="badge">{{ getBadge(product) }}</span>
-      <img [src]="product.images[0]" [alt]="product.name" loading="lazy" width="1200" height="900" decoding="async"
-        (click)="openProduct(product)" (error)="applyImageFallback($event)" />
-      <div>
-        <h3>{{ product.name }}</h3>
-        <p>{{ product.description }}</p>
-        <div class="featured-price">
-          <small>{{ getReferencePrice(product.price) }}</small>
-          <strong>{{ formatPrice(product.price) }}</strong>
-        </div>
-        <div class="featured-actions">
-          <button type="button" (click)="openProduct(product)">{{ homeContent().featured.viewPhotosLabel }}</button>
-          <button type="button" (click)="addToCart(product)">{{ homeContent().featured.addLabel }}</button>
-        </div>
-      </div>
-    </article>
-    }
-  </div>
-</section>
-
-<section class="weekly-offer reveal" [class.anchor-focus]="focusedSectionId() === 'offer'" id="offer"
-  [attr.aria-label]="homeContent().offer.ariaLabel">
-  <div class="offer-copy">
-    <p class="offer-tag">{{ homeContent().offer.sectionTag }}</p>
-    <h2>{{ homeContent().offer.sectionTitle }}</h2>
-    <p>{{ homeContent().offer.sectionDescription }}</p>
-    @if (offerProduct(); as offerItem) {
-    <div class="offer-prices">
-      <small>{{ formatPrice(offerItem.price) }}</small>
-      <strong>{{ getOfferPrice(offerItem.price) }}</strong>
-    </div>
-    }
-    <div class="offer-actions">
-      @if (offerProduct(); as offerItem) {
-      <button type="button" class="btn-primary" (click)="openProduct(offerItem)">{{ homeContent().offer.viewLabel
-        }}</button>
-      <button type="button" class="btn-outline" (click)="addToCart(offerItem)">{{ homeContent().offer.addLabel
-        }}</button>
-      }
-    </div>
-  </div>
-  @if (offerProduct(); as offerItem) {
-  <article class="offer-card">
-    <img [src]="offerItem.images[0]" [alt]="offerItem.name" loading="lazy" width="1200" height="900" decoding="async"
-      (click)="openProduct(offerItem)" (error)="applyImageFallback($event)" />
-    <h3>{{ offerItem.name }}</h3>
-    <p>{{ offerItem.description }}</p>
-  </article>
-  }
-</section>
-
 <section class="catalog" id="products">
   <div class="catalog-head">
     <h2>{{ homeContent().catalog.sectionTitle }}</h2>
     <p>{{ homeContent().catalog.sectionDescription }}</p>
-
-    <div class="search-row">
-      <label class="search-box" for="productSearch">
-        <span>{{ homeContent().catalog.searchLabel }}</span>
-        <input id="productSearch" list="productSuggestions" type="search"
-          [placeholder]="homeContent().catalog.searchPlaceholder" [value]="searchTerm()"
-          (input)="updateSearch($any($event.target).value)" />
-        <datalist id="productSuggestions">
-          @for (item of quickSearchSuggestions(); track item) {
-          <option [value]="item"></option>
-          }
-        </datalist>
-      </label>
-      @if (searchTerm()) {
-      <button type="button" class="clear-search" (click)="clearSearch()">{{ homeContent().catalog.clearSearchLabel
-        }}</button>
-      }
-    </div>
   </div>
 
-  <div class="filters" role="tablist" [attr.aria-label]="homeContent().catalog.filtersAriaLabel">
-    @for (category of categories(); track category) {
-    <button type="button" [class.active]="activeCategory() === category" (click)="selectCategory(category)">
-      {{ category }}
+  <div class="filter-bar">
+    <label class="filter-search" for="productSearch">
+      <input id="productSearch" list="productSuggestions" type="search"
+        [placeholder]="homeContent().catalog.searchPlaceholder" [value]="searchTerm()"
+        (input)="updateSearch($any($event.target).value)" />
+      <datalist id="productSuggestions">
+        @for (item of quickSearchSuggestions(); track item) {
+        <option [value]="item"></option>
+        }
+      </datalist>
+    </label>
+
+    <select class="filter-select" [value]="activeCategory()" (change)="selectCategory($any($event.target).value)"
+      [attr.aria-label]="homeContent().catalog.filtersAriaLabel">
+      @for (category of categories(); track category) {
+      <option [value]="category">{{ category }}</option>
+      }
+    </select>
+
+    <select class="filter-select" [value]="activePriceBand()"
+      (change)="setPriceBand($any($event.target).value)" aria-label="Rango de precio">
+      @for (band of priceBands; track band.key) {
+      <option [value]="band.key">{{ band.label }}</option>
+      }
+    </select>
+
+    <select class="filter-select" id="sortMode" [value]="sortMode()"
+      (change)="setSortMode($any($event.target).value)">
+      @for (option of sortOptions; track option.key) {
+      <option [value]="option.key">{{ option.label }}</option>
+      }
+    </select>
+
+    <label class="filter-check">
+      <input type="checkbox" [checked]="onlyFeatured()"
+        (change)="setFeaturedOnly($any($event.target).checked)" />
+      <span>{{ homeContent().catalog.featuredOnlyLabel }}</span>
+    </label>
+
+    @if (searchTerm() || hasAdvancedFilters()) {
+    <button type="button" class="filter-clear" (click)="clearSearch(); resetAdvancedFilters()">
+      &times;
     </button>
     }
   </div>
 
-  <div class="advanced-filters" [attr.aria-label]="homeContent().catalog.advancedFiltersAriaLabel">
-    <div class="price-bands">
-      @for (band of priceBands; track band.key) {
-      <button type="button" [class.active]="activePriceBand() === band.key" (click)="setPriceBand(band.key)">
-        {{ band.label }}
-      </button>
+  @if (featuredShowcaseProducts().length > 0 && activeCategory() === 'Todos' && !searchTerm() && !hasAdvancedFilters()) {
+  <div class="featured-strip">
+    <p class="featured-strip-label">{{ homeContent().featured.sectionTitle }}</p>
+    <div class="featured-rail">
+      @for (product of featuredShowcaseProducts(); track product.id) {
+      <article class="featured-mini" (click)="openProduct(product)">
+        <img [src]="product.images[0]" [alt]="product.name" loading="lazy" width="80" height="80" decoding="async"
+          (error)="applyImageFallback($event)" />
+        <div class="featured-mini-info">
+          <strong>{{ product.name }}</strong>
+          <span>{{ formatPrice(product.price) }}</span>
+        </div>
+        <button type="button" class="featured-mini-add" (click)="$event.stopPropagation(); addToCart(product)">
+          +
+        </button>
+      </article>
       }
     </div>
-
-    <label class="featured-toggle">
-      <input type="checkbox" [checked]="onlyFeatured()" (change)="setFeaturedOnly($any($event.target).checked)" />
-      {{ homeContent().catalog.featuredOnlyLabel }}
-    </label>
-
-    <label class="sort-select" for="sortMode">
-      {{ homeContent().catalog.sortLabel }}
-      <select id="sortMode" [value]="sortMode()" (change)="setSortMode($any($event.target).value)">
-        @for (option of sortOptions; track option.key) {
-        <option [value]="option.key">{{ option.label }}</option>
-        }
-      </select>
-    </label>
-
-    @if (hasAdvancedFilters()) {
-    <button type="button" class="clear-search" (click)="resetAdvancedFilters()">{{
-      homeContent().catalog.resetFiltersLabel }}</button>
-    }
   </div>
+  }
 
   <p class="result-count">{{ filteredProducts().length }} {{ homeContent().catalog.resultSuffix }}</p>
 
@@ -234,13 +176,25 @@
 
         <div class="price-row">
           <div class="price-col">
-            <small>{{ getReferencePrice(product.price) }}</small>
+            <small>{{ getReferencePrice(product) }}</small>
             <strong>{{ formatPrice(product.price) }}</strong>
+            @if (product.stock !== undefined && product.stock !== null) {
+            <span class="stock-label" [class.low]="product.stock <= 3" [class.out]="product.stock === 0">
+              @if (product.stock === 0) {
+                Agotado
+              } @else if (product.stock <= 3) {
+                {{ product.stock }} disponibles
+              } @else {
+                {{ product.stock }} en stock
+              }
+            </span>
+            }
           </div>
           <div class="card-buttons">
             <button type="button" class="ghost" (click)="openProduct(product)">{{
               homeContent().catalog.quickViewLabel }}</button>
             <button type="button" class="add-btn" [class.added]="recentlyAddedId() === product.id"
+              [disabled]="product.stock === 0"
               (click)="addToCart(product)">{{ homeContent().catalog.addToCartLabel }}</button>
           </div>
         </div>
@@ -276,118 +230,4 @@
       homeContent().catalog.emptyCtaLabel }}</button>
   </article>
   }
-</section>
-
-<section class="testimonials reveal" [attr.aria-label]="homeContent().testimonials.ariaLabel">
-  <div class="section-head">
-    <h2>{{ homeContent().testimonials.sectionTitle }}</h2>
-    <p>{{ homeContent().testimonials.sectionDescription }}</p>
-  </div>
-
-  @if (testimonials().length > 0) {
-  <div class="testimonial-carousel" (mouseenter)="pauseTestimonialAutoPlay()"
-    (mouseleave)="resumeTestimonialAutoPlay()">
-    <button class="carousel-arrow" type="button" (click)="prevTestimonial()">
-      <span aria-hidden="true">&#8249;</span>
-      <span class="sr-only">{{ homeContent().testimonials.prevButtonLabel }}</span>
-    </button>
-
-    <div class="carousel-window">
-      <div class="carousel-track" [style.transform]="'translateX(-' + activeTestimonialIndex() * 100 + '%)'">
-        @for (item of testimonials(); track item.name + item.quote) {
-        <article class="testimonial-slide">
-          <div class="testimonial-quote-icon" aria-hidden="true">&ldquo;</div>
-          <div class="testimonial-stars" [attr.aria-label]="item.score + ' ' + homeContent().testimonials.starsSuffix">
-            @for (star of getStars(+item.score); track $index) {
-            <span class="star" [class.star-full]="star === 'full'">&#9733;</span>
-            }
-          </div>
-          <blockquote class="testimonial-text">"{{ item.quote }}"</blockquote>
-          <div class="testimonial-author">
-            <div class="testimonial-avatar" aria-hidden="true">{{ item.name[0] }}</div>
-            <div class="testimonial-info">
-              <strong>{{ item.name }}</strong>
-              <span>{{ item.role }}</span>
-            </div>
-          </div>
-        </article>
-        }
-      </div>
-    </div>
-
-    <button class="carousel-arrow" type="button" (click)="nextTestimonial()">
-      <span aria-hidden="true">&#8250;</span>
-      <span class="sr-only">{{ homeContent().testimonials.nextButtonLabel }}</span>
-    </button>
-  </div>
-
-  <div class="carousel-dots" role="group" [attr.aria-label]="homeContent().testimonials.navigationAriaLabel">
-    @for (item of testimonials(); track item.name + item.quote; let i = $index) {
-    <button class="carousel-dot" [class.carousel-dot-active]="activeTestimonialIndex() === i"
-      (click)="goToTestimonial(i)"
-      [attr.aria-label]="homeContent().testimonials.goToItemPrefix + ' ' + (i + 1)"></button>
-    }
-  </div>
-  } @else {
-  <article class="empty-results" aria-live="polite">
-    <h3>{{ homeContent().testimonials.emptyTitle }}</h3>
-    <p>{{ homeContent().testimonials.emptyDescription }}</p>
-  </article>
-  }
-</section>
-
-<section class="metrics reveal" [attr.aria-label]="homeContent().metrics.ariaLabel">
-  <div class="section-head">
-    <h2>{{ homeContent().metrics.sectionTitle }}</h2>
-    <p>{{ homeContent().metrics.sectionDescription }}</p>
-  </div>
-  <div class="metrics-layout">
-    <div class="metrics-activity">
-      <p class="metrics-sub-label">{{ homeContent().metrics.activityLabel }}</p>
-      <div class="metrics-counters">
-        <article class="metrics-counter-card">
-          <strong class="metrics-value">{{ metrics().visits }}</strong>
-          <p class="metrics-name">{{ homeContent().metrics.labels.visits }}</p>
-        </article>
-        <article class="metrics-counter-card">
-          <strong class="metrics-value">{{ metrics().productViews }}</strong>
-          <p class="metrics-name">{{ homeContent().metrics.labels.productViews }}</p>
-        </article>
-        <article class="metrics-counter-card">
-          <strong class="metrics-value">{{ metrics().addsToCart }}</strong>
-          <p class="metrics-name">{{ homeContent().metrics.labels.addsToCart }}</p>
-        </article>
-        <article class="metrics-counter-card">
-          <strong class="metrics-value">{{ metrics().checkoutIntents }}</strong>
-          <p class="metrics-name">{{ homeContent().metrics.labels.checkoutIntents }}</p>
-        </article>
-      </div>
-    </div>
-
-    <div class="metrics-rates">
-      <p class="metrics-sub-label">{{ homeContent().metrics.conversionLabel }}</p>
-      <div class="conversion-list">
-        <article class="conversion-item">
-          <div class="conversion-header">
-            <p class="conversion-label">{{ homeContent().metrics.labels.addToViewRate }}</p>
-            <strong class="conversion-value" [class.rate-good]="addToViewRate() >= 15">{{
-              addToViewRate().toFixed(1) }}%</strong>
-          </div>
-          <div class="conversion-bar-track">
-            <div class="conversion-bar" [style.width.%]="clampRate(addToViewRate())"></div>
-          </div>
-        </article>
-        <article class="conversion-item">
-          <div class="conversion-header">
-            <p class="conversion-label">{{ homeContent().metrics.labels.checkoutRate }}</p>
-            <strong class="conversion-value" [class.rate-good]="checkoutRate() >= 10">{{
-              checkoutRate().toFixed(1) }}%</strong>
-          </div>
-          <div class="conversion-bar-track">
-            <div class="conversion-bar" [style.width.%]="clampRate(checkoutRate())"></div>
-          </div>
-        </article>
-      </div>
-    </div>
-  </div>
 </section>

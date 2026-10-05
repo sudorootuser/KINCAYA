@@ -7,6 +7,7 @@ export interface Product {
   images: string[];
   description: string;
   featured?: boolean;
+  discountPercent?: number;
 }
 
 export interface CartItem {

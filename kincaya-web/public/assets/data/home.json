@@ -1,111 +1,70 @@
 {
   "hero": {
-    "tag": "Asesoria real + tecnologia que simplifica tu dia",
+    "tag": "Tecnologia que resuelve — asesoria real",
     "titleLead": "Equipos confiables para",
-    "titleHighlight": "hogar, oficina y negocio.",
+    "titleHighlight": "tu hogar y oficina.",
     "highlightOptions": [
-      "hogar y oficina.",
-      "tecnologia diaria.",
-      "negocio y trabajo."
+      "tu vida conectada.",
+      "tu setup ideal.",
+      "tu hogar inteligente."
     ],
-    "description": "Compra en minutos, recibe recomendacion personalizada y confirma pedido por WhatsApp con seguimiento real.",
+    "description": "Selecciona tecnologia probada, recibe asesoria personalizada por WhatsApp y confirma tu pedido en minutos. Entrega directa con garantia.",
     "kpisAriaLabel": "Beneficios principales",
-    "scrollCueAriaLabel": "Deslizar hasta el catalogo de productos",
-    "scrollCueText": "Desliza para ver productos",
-    "primaryActionLabel": "Comprar ahora",
+    "scrollCueAriaLabel": "Ver catalogo de productos",
+    "scrollCueText": "Ver productos",
+    "primaryActionLabel": "Ver catalogo",
     "primaryActionHref": "#products",
-    "secondaryActionLabel": "Ver oferta semanal",
-    "secondaryActionHref": "#offer",
+    "secondaryActionLabel": "Hablar con asesor",
+    "secondaryActionHref": "#products",
     "kpis": [
       {
-        "value": "4.9/5",
-        "label": "valoracion promedio"
+        "value": "1 a 1",
+        "label": "asesoria por WhatsApp"
       },
       {
-        "value": "< 24h",
-        "label": "respuesta por WhatsApp"
+        "value": "Directa",
+        "label": "garantia con fabricante"
       },
       {
-        "value": "Garantia",
-        "label": "soporte post compra"
+        "value": "Rapido",
+        "label": "confirmacion en minutos"
       }
     ],
     "floatingCards": [
       {
-        "label": "Entrega rapida",
+        "label": "Entrega",
         "value": "24-48 horas"
       },
       {
-        "label": "Asesoria experta",
+        "label": "Asesoria",
         "value": "1 a 1 por chat"
       }
     ]
   },
   "trust": {
-    "ariaLabel": "Prueba social",
+    "ariaLabel": "Garantias Kincaya",
     "stats": [
       {
-        "value": "+850",
-        "label": "pedidos completados"
+        "value": "Envio",
+        "label": "a todo Colombia"
       },
       {
-        "value": "98%",
-        "label": "satisfaccion de clientes"
+        "value": "Pago",
+        "label": "seguro y flexible"
       },
       {
-        "value": "100%",
-        "label": "acompanamiento por WhatsApp"
+        "value": "Asesoria",
+        "label": "tecnica 1 a 1"
       },
       {
-        "value": "7 dias",
-        "label": "garantia de cambio"
+        "value": "Garantia",
+        "label": "directa con fabricante"
       }
     ]
-  },
-  "collections": {
-    "ariaLabel": "Colecciones destacadas",
-    "sectionTitle": "Compra por necesidad",
-    "sectionDescription": "Elige una coleccion y te mostramos productos listos para resolver ese escenario.",
-    "exploreLabel": "Explorar",
-    "items": [
-      {
-        "title": "Home Office Smart",
-        "description": "Arma un setup eficiente para trabajo remoto y clases.",
-        "category": "Computo",
-        "image": "https://images.unsplash.com/photo-1484417894907-623942c8ee29?auto=format&fit=crop&w=900&q=80"
-      },
-      {
-        "title": "Seguridad para tu hogar",
-        "description": "Camaras y kits para monitoreo en tiempo real.",
-        "category": "Seguridad",
-        "image": "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=900&q=80"
-      },
-      {
-        "title": "Audio y entretenimiento",
-        "description": "Sonido envolvente para musica, gaming y streaming.",
-        "category": "Audio",
-        "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80"
-      }
-    ]
-  },
-  "featured": {
-    "sectionTitle": "Destacados Kincaya",
-    "sectionDescription": "Productos con mejor relacion entre rendimiento, confianza y demanda.",
-    "viewPhotosLabel": "Ver fotos",
-    "addLabel": "Agregar"
-  },
-  "offer": {
-    "ariaLabel": "Oferta semanal",
-    "sectionTag": "Oferta semanal",
-    "sectionTitle": "Descuento especial del 15%",
-    "sectionDescription": "Solo por esta semana en uno de nuestros productos favoritos para clientes frecuentes.",
-    "discountRate": 0.15,
-    "viewLabel": "Ver oferta",
-    "addLabel": "Agregar al carrito"
   },
   "catalog": {
-    "sectionTitle": "Catalogo de productos",
-    "sectionDescription": "Busca, filtra y compara para comprar con mayor claridad.",
+    "sectionTitle": "Catalogo de tecnologia",
+    "sectionDescription": "Filtra por categoria, precio o busca directamente lo que necesitas.",
     "filtersAriaLabel": "Filtrar productos por categoria",
     "advancedFiltersAriaLabel": "Filtros avanzados",
     "paginationAriaLabel": "Paginacion de productos",
@@ -114,46 +73,42 @@
     "quickViewLabel": "Ver",
     "addToCartLabel": "Agregar",
     "searchLabel": "Buscar producto",
-    "searchPlaceholder": "Ejemplo: camara, audio, smartwatch",
+    "searchPlaceholder": "Buscar: camara wifi, audifonos, smartwatch...",
     "clearSearchLabel": "Limpiar",
-    "featuredOnlyLabel": "Solo destacados",
+    "featuredOnlyLabel": "Destacados",
     "sortLabel": "Ordenar",
     "resetFiltersLabel": "Reset filtros",
-    "resultSuffix": "resultados",
+    "resultSuffix": "productos",
     "emptyTitle": "Sin resultados",
-    "emptyDescription": "Prueba con otra categoria, rango de precio o cambia tu busqueda para encontrar mas opciones.",
+    "emptyDescription": "Intenta con otra categoria, rango de precio o termino de busqueda.",
     "emptyCtaLabel": "Ver todo el catalogo"
   },
-  "testimonials": {
-    "ariaLabel": "Opiniones de clientes",
-    "sectionTitle": "Lo que dicen nuestros clientes",
-    "sectionDescription": "Experiencias reales de compra con asesoria personalizada.",
-    "prevButtonLabel": "Testimonio anterior",
-    "nextButtonLabel": "Testimonio siguiente",
-    "navigationAriaLabel": "Navegar testimonios",
-    "goToItemPrefix": "Ir al testimonio",
-    "starsSuffix": "de 5 estrellas",
-    "emptyTitle": "Pronto publicaremos nuevos comentarios",
-    "emptyDescription": "Esta seccion se conectara a la base de datos para mostrar opiniones reales de clientes."
-  },
-  "metrics": {
-    "ariaLabel": "Metricas de conversion",
-    "sectionTitle": "Panel de conversion",
-    "sectionDescription": "Datos de interaccion capturados en la app para optimizar experiencia y ventas.",
-    "activityLabel": "Actividad en sesion",
-    "conversionLabel": "Tasas de conversion",
-    "labels": {
-      "visits": "Visitas",
-      "productViews": "Vistas de producto",
-      "addsToCart": "Agregados a carrito",
-      "checkoutIntents": "Intencion de checkout",
-      "addToViewRate": "Tasa ver a carrito",
-      "checkoutRate": "Tasa carrito a checkout"
-    }
+  "featured": {
+    "sectionTitle": "Mas vendidos",
+    "sectionDescription": ""
   },
   "badges": {
-    "topSales": "Top ventas",
+    "topSales": "Mas vendido",
     "offer": "Oferta",
     "new": "Nuevo"
+  },
+  "footer": {
+    "tagline": "Tecnologia seleccionada con asesoria real. Compra facil, entrega rapida y soporte directo por WhatsApp.",
+    "whatsappLabel": "Hablar con un asesor",
+    "tiendaTitle": "Tienda",
+    "catalogLink": "Catalogo",
+    "offerLink": "Productos destacados",
+    "aboutLink": "Sobre nosotros",
+    "ayudaTitle": "Ayuda",
+    "historyLink": "Mis pedidos",
+    "supportLink": "Soporte por WhatsApp",
+    "garantiasTitle": "Nuestras garantias",
+    "garantees": [
+      "Pago contra entrega o transferencia",
+      "Garantia directa con fabricante",
+      "Devolucion si el producto no cumple",
+      "Asesoria tecnica antes y despues de comprar"
+    ],
+    "rights": "Todos los derechos reservados."
   }
 }

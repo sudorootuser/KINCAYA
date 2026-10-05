@@ -15,6 +15,7 @@ import { ProductCatalogService } from '../../services/product-catalog.service';
 import { ProductViewerService } from '../../services/product-viewer.service';
 import { TestimonialService } from '../../services/testimonial.service';
 import { LeadService } from '../../services/lead.service';
+import { StoreSettingsService } from '../../services/store-settings.service';
 import { UxMetricsService } from '../../services/ux-metrics.service';
 
 type PriceBand = 'all' | 'under60' | 'from60to120' | 'over120';
@@ -52,11 +53,22 @@ export class HomeComponent implements OnDestroy {
   private readonly handleHashChange = () => this.scrollToHashTarget(window.location.hash);
   private testimonialPaused = false;
 
+  protected readonly currentYear = new Date().getFullYear();
+  protected readonly heroImageIndex = signal(0);
+  private heroImageTimer: ReturnType<typeof setInterval> | null = null;
+
+  protected readonly heroImages = [
+    'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80',
+    'assets/logos/LOGOS_bolsa-color.svg',
+  ];
+
   protected readonly priceBands = [
     { key: 'all' as PriceBand, label: 'Todo precio' },
-    { key: 'under60' as PriceBand, label: 'Hasta $60' },
-    { key: 'from60to120' as PriceBand, label: '$60 a $120' },
-    { key: 'over120' as PriceBand, label: 'Mas de $120' },
+    { key: 'under60' as PriceBand, label: 'Hasta $150.000' },
+    { key: 'from60to120' as PriceBand, label: '$150.000 a $350.000' },
+    { key: 'over120' as PriceBand, label: 'Mas de $350.000' },
   ];
 
   protected readonly sortOptions = [
@@ -72,6 +84,7 @@ export class HomeComponent implements OnDestroy {
   private readonly catalogService = inject(ProductCatalogService);
   private readonly homeContentService = inject(HomeContentService);
   private readonly testimonialService = inject(TestimonialService);
+  private readonly storeSettings = inject(StoreSettingsService);
 
   protected readonly homeContent = this.homeContentService.content;
   protected readonly products = this.catalogService.products;
@@ -147,6 +160,7 @@ export class HomeComponent implements OnDestroy {
       this.setupScrollReveal();
       this.startTestimonialAutoPlay();
       this.startHeroHighlightRotation();
+      this.startHeroImageRotation();
       this.setupHashNavigation();
     });
   }
@@ -158,6 +172,10 @@ export class HomeComponent implements OnDestroy {
 
     if (this.heroHighlightTimer !== null) {
       clearInterval(this.heroHighlightTimer);
+    }
+
+    if (this.heroImageTimer !== null) {
+      clearInterval(this.heroImageTimer);
     }
 
     if (this.heroHighlightSwapTimeout !== null) {
@@ -296,6 +314,17 @@ export class HomeComponent implements OnDestroy {
     }, 4300);
   }
 
+  private startHeroImageRotation(): void {
+    this.heroImageTimer = setInterval(() => {
+      const total = this.heroImages.length;
+      if (total <= 1) {
+        return;
+      }
+
+      this.heroImageIndex.update((i) => (i + 1) % total);
+    }, 3500);
+  }
+
   private setupHashNavigation(): void {
     if (typeof window === 'undefined') {
       return;
@@ -365,14 +394,14 @@ export class HomeComponent implements OnDestroy {
     if (priceBand !== 'all') {
       filtered = filtered.filter((product) => {
         if (priceBand === 'under60') {
-          return product.price <= 60;
+          return product.price <= 150000;
         }
 
         if (priceBand === 'from60to120') {
-          return product.price > 60 && product.price <= 120;
+          return product.price > 150000 && product.price <= 350000;
         }
 
-        return product.price > 120;
+        return product.price > 350000;
       });
     }
 
@@ -523,7 +552,7 @@ export class HomeComponent implements OnDestroy {
       return texts.topSales;
     }
 
-    if (product.price <= 60) {
+    if (product.price <= 200000) {
       return texts.offer;
     }
 
@@ -534,8 +563,11 @@ export class HomeComponent implements OnDestroy {
     return '';
   }
 
-  protected getReferencePrice(price: number): string {
-    return this.formatPrice(price * 1.18);
+  protected getReferencePrice(product: Product): string {
+    if (product.discountPercent && product.discountPercent > 0) {
+      return this.formatPrice(product.price / (1 - product.discountPercent / 100));
+    }
+    return this.formatPrice(product.price * 1.15);
   }
 
   protected getOfferPrice(price: number): string {
@@ -558,9 +590,6 @@ export class HomeComponent implements OnDestroy {
   }
 
   protected formatPrice(price: number): string {
-    return new Intl.NumberFormat('es-EC', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(price);
+    return this.storeSettings.formatPrice(price);
   }
 }
